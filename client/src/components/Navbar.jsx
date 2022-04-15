@@ -45,7 +45,7 @@ const Center=styled.div`
 `
 const Logo = styled.h1`
     font-weight:bold;
-    ${mobile({fontSize:"20px"})}
+    ${mobile({fontSize:"20px", zIndex:"1"})}
 `
 const Right=styled.div`
     flex:1; 

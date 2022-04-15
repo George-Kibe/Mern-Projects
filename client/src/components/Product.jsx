@@ -39,6 +39,7 @@ const Circle = styled.div`
     position:absolute;
 `
 const Image= styled.img`
+    object-fit:cover; 
     height:75%;
     z-index:2;
 `
