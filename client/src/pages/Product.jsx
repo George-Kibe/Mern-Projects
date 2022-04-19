@@ -5,6 +5,10 @@ import Newsletter from "../components/Newsletter"
 import Footer from "../components/Footer"
 import { Add, Remove } from "@material-ui/icons"
 import { mobile } from "../responsive"
+import { publicRequest, userRequest } from "../requestMethods"
+import { useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
 
 const Container =styled.div`
 
@@ -105,44 +109,75 @@ const Button = styled.button`
 `
 
 const Product = () => {
-  return (
+    const location = useLocation();
+    const id=location.pathname.split("/")[2]
+    const [product, setProduct] = useState({})
+    const [quantity, setQuantity] = useState(1)
+    const [price, setPrice] = useState(0)
+    const [color, setColor] = useState("")
+    const [size, setSize] = useState("")
+
+        
+    useEffect(() =>{
+        const getProduct = async ()=>{
+            try{
+                const res = await publicRequest.get(`/products/find/${id}`);                
+                setProduct(res.data)
+            }catch (error){
+                console.log(error)
+            }
+        }
+        getProduct()
+    }, [id])
+
+    const handleQuantity = (type) =>{
+        if(type==="decrease" && quantity!=1){
+            setQuantity(quantity-1)
+        }else if(type==="increase"){
+            setQuantity(quantity+1)
+        }
+    }
+
+    const handleCartClick = () =>{
+        
+    }
+
+    return (
     <Container>
         <Announcement />
         <Navbar />
         <Wrapper>
             <ImageContainer>
-                <Image src="https://i.ibb.co/nnH3WgQ/placeholder4.jpg"/>
+                <Image src={product.image}/>
             </ImageContainer>
             <InfoContainer>
-                <Title>Item Title</Title>
-                <Description>Some Random Text to come here</Description>
-                <Price> $ 2000</Price>
+                <Title>{product.title}</Title>
+                <Description>{product.description}</Description>
+                <Price> $ {product.price}</Price>
                 <FilterContainer>
                     <Filter>
                         <FilterTitle>Color</FilterTitle>
-                        <FilterColor color="black"/>
-                        <FilterColor color="darkblue"/>
-                        <FilterColor color="gray"/>
+                        {product.color?.map((c) => (
+                            <FilterColor color={c.toLowerCase()} key={c} onClick={()=>setColor(c.toLowerCase())}/>
+                        ))}                               
                     </Filter>
                     <Filter>
                         <FilterTitle>Size</FilterTitle>
-                        <FilterSize>
-                            <FilterSizeOption>XS</FilterSizeOption>
-                            <FilterSizeOption>S</FilterSizeOption>
-                            <FilterSizeOption>M</FilterSizeOption>
-                            <FilterSizeOption>L</FilterSizeOption>
-                            <FilterSizeOption>XL</FilterSizeOption>
-                            <FilterSizeOption>XXL</FilterSizeOption>
+                        <FilterSize onChange={(e) => setSize(e.target.value)}>
+                            {product.size?.map((s) =>(
+                                <FilterSizeOption>{s}</FilterSizeOption>
+                            ))}      
+                            
                         </FilterSize>
                     </Filter>
                 </FilterContainer>
                 <AddContainer>
                     <AmountContainer>
-                        <Remove />
-                        <Amount>1</Amount>
-                        <Add />
+                        <Remove onClick={() =>handleQuantity("decrease")} />
+                        <Amount>{quantity}</Amount>
+                        <Add onClick={() =>handleQuantity("increase")}  />
                     </AmountContainer>
-                    <Button>ADD TO CART</Button>
+                    <Button onClick={handleCartClick}>ADD TO CART</Button>
                 </AddContainer>
             </InfoContainer>
         </Wrapper>

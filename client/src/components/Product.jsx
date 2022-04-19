@@ -1,8 +1,6 @@
 import { FavoriteBorderOutlined, SearchOutlined, ShoppingCartOutlined } from '@material-ui/icons'
 import styled from 'styled-components'
 import {Link} from "react-router-dom";
-import { useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 
 const Info= styled.div`
     opacity:0;
@@ -65,25 +63,11 @@ const Icon = styled.div`
 `
 
 const Product = ({item}) => {
-    const location = useLocation();
-    const id=location.pathname.split("/")[2]
-
-    const [product, setProduct] = useState({})
-    
-    useEffect(() =>{
-        const getProduct = async ()=>{
-            try{
-
-            }catch (error){
-
-            }
-        }
-    })
-
+   
   return (
     <Container>
         <Circle />
-        <Image src={item.img}/>  
+        <Image src={item.image}/>  
         <Info>
             <Icon>
                 <ShoppingCartOutlined />
