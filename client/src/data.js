@@ -29,16 +29,19 @@ export const categories = [
         id:1,
         image:"https://i.ibb.co/zxgZn9N/location1-Artboard-2x.png",
         title:"TEST COMPARABLES",
+        category:"women",
     },
     {
         id:2,
         image:"https://i.ibb.co/p0c4YbL/placeholder3.jpg",
         title:"DESIGNER SHOES",
+        category:"women",
     },
     {
         id:2,
         image:"https://i.ibb.co/h79LrJD/T-Shirt.jpg",
         title:"DENIM T-SHIRTS",
+        category:"men",
     },
 ]
 
