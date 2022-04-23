@@ -131,7 +131,7 @@ const Product = () => {
     }, [id])
 
     const handleQuantity = (type) =>{
-        if(type==="decrease" && quantity!=1){
+        if(type==="decrease" && quantity!==1){
             setQuantity(quantity-1)
         }else if(type==="increase"){
             setQuantity(quantity+1)
@@ -139,7 +139,7 @@ const Product = () => {
     }
 
     const handleCartClick = () =>{
-        
+
     }
 
     return (
