@@ -5,6 +5,10 @@ import Footer from "../components/Footer"
 import Navbar from "../components/Navbar"
 import { mobile } from "../responsive"
 import { useSelector } from "react-redux"
+import StripeCheckout from "react-stripe-checkout"
+
+
+const KEY = process.env.REACT_APP_STRIPE
 
 const Container = styled.div``
 const Wrapper = styled.div`
