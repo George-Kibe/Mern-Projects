@@ -6,10 +6,12 @@ import Navbar from "../components/Navbar"
 import { mobile } from "../responsive"
 import { useSelector } from "react-redux"
 import StripeCheckout from "react-stripe-checkout"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import {userRequest} from "../requestMethods"
+import {useNavigate} from "react-router-dom"
 
-//const KEY = process.env.REACT_APP_STRIPE
-const KEY = "pk_test_51K7g1nEkdIEftzMH6rESvfaC10tC8HRv9CUwwvAImywuROtXvVqZDl0xnSGWfvA0EshZtfer0C0NbtmzFpgttyhP00cAbONgOG"
+const KEY = process.env.REACT_APP_STRIPE
+//const KEY = "pk_test_51K7g1nEkdIEftzMH6rESvfaC10tC8HRv9CUwwvAImywuROtXvVqZDl0xnSGWfvA0EshZtfer0C0NbtmzFpgttyhP00cAbONgOG"
 
 const Container = styled.div``
 const Wrapper = styled.div`
@@ -143,11 +145,29 @@ const Button = styled.button`
 const Cart = () => {
     const cart = useSelector(state => state.cart)
     const [stripeToken, setStripeToken] = useState(null)
+    const navigate = useNavigate()
 
     const onToken = (token) =>{
         setStripeToken(token)
     }
-    console.log(stripeToken)
+    
+    useEffect(() =>{
+        const makeRequest = async () =>{
+            try{
+                const res = await userRequest.post("/checkout/payment", {
+                    tokenId: stripeToken.id,
+                    amount:cart.total*100
+                });
+                navigate("/success", {data:res.data}) //go to success page once a transaction is proceessed
+                
+            }catch(error){
+
+            }
+        }
+        stripeToken && cart.total>=1 && makeRequest()
+        console.log(stripeToken)
+    }, [stripeToken, cart.total, navigate])
+    
   return (
     <Container>
         <Announcement/>
