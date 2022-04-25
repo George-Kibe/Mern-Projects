@@ -161,7 +161,7 @@ const Cart = () => {
                 navigate("/success", {data:res.data}) //go to success page once a transaction is proceessed
                 
             }catch(error){
-
+                console.log(error)
             }
         }
         stripeToken && cart.total>=1 && makeRequest()

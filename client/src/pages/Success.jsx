@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
 import { userRequest } from "../requestMethods";
+import { useLocation } from "react-router-dom";
 
 const Success = () => {
   const location = useLocation();
@@ -10,10 +10,10 @@ const Success = () => {
   const cart = location.state.cart;
   const currentUser = useSelector((state) => state.user.currentUser);
   const [orderId, setOrderId] = useState(null);
-  console.log(location)
-
+  
   useEffect(() => {
     const createOrder = async () => {
+        console.log(location)
       try {
         const res = await userRequest.post("/orders", {
           userId: currentUser._id,
