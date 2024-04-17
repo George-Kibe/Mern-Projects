@@ -16,7 +16,7 @@ RUN npm install && npm cache clean --force
 COPY . .
 
 # use EXPOSE command to have our port mapped by the docker daemon
-EXPOSE 6000
+EXPOSE 8000
 
 # default dev command
 CMD [ "npm", "run", "dev" ]

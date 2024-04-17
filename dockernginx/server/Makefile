@@ -17,4 +17,4 @@ down-V:
 	docker-compose down -v
 
 volume:
-	docker volume inspect mern-library-nginx_mongodb-data
+	docker volume inspect dockernginx_mongodb-data
