@@ -21,7 +21,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 8000;
 
 // Home route/ Health test
-app.get("/", (req,res) => {
+app.get("/api/v1", (req,res) => {
     res.json({
         Hi: "Welcome to the MERN Library API",
         HealthTest: "Welcome to the Mern Project Server is running fine"
