@@ -6,9 +6,10 @@ LABEL description="React Frontend for the Library API"
 
 WORKDIR /app
 
-COPY ./package.json ./
+COPY ["package.json","package-lock.json*","./"]
 
-RUN npm install
+# Install dependencies and clear npm cache
+RUN npm install && npm cache clean --force
 
 COPY . .
 

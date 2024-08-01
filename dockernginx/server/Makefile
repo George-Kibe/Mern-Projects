@@ -5,16 +5,16 @@ ifneq (,$(wildcard ./.env))
 endif
 
 build:
-	docker-compose up --build --remove-orphans
+	docker compose up --build --remove-orphans
 
 up:
-	docker-compose up
+	docker compose up
 
 down:
-	docker-compose down
+	docker compose down
 
 down-V:
-	docker-compose down -v
+	docker compose down -v
 
 volume:
 	docker volume inspect dockernginx_mongodb-data

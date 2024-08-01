@@ -6,7 +6,7 @@ services:
       build:
          context: ./server
          dockerfile: Dockerfile.dev
-      container_name: library_mern_nginx
+      container_name: library_mern_server
       # volumes allow sharing of data in run-time between host and container
       env_file:
         - server/.env
@@ -17,12 +17,12 @@ services:
          #This is a must for development in order to update our container whenever a change to the source code is made. Without this, you would have to rebuild the image each time you make a change to source code.
 
          - ./server:/app
-      # ports:
-      #    - 8000:8000
+      ports:
+         - 8000:8000
       depends_on:
          - mongodb
       environment:
-         #NODE_ENV: ${NODE_ENV}
+         NODE_ENV: ${NODE_ENV}
          MONGO_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb
       networks:
          - library-mern-api
@@ -69,8 +69,8 @@ services:
       volumes:
          - /app/node_modules
          - ./client:/app
-      # ports:
-      #    - 3000:3000
+      ports:
+         - 3000:3000
       depends_on:
          - library-api
       networks:
