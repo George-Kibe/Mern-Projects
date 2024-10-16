@@ -24,7 +24,7 @@ export const sendVerificationEmail = async (email, verificationToken) => {
         const mailOptions = {
             from: 'buenasconsultants@gmail.com',
             to: email,
-            subject: `Welcome Aboard, Verify Your Email Organization`,
+            subject: `Welcome to RealHive, Verify Your Email`,
             html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
           }
         // Send the email
@@ -54,7 +54,7 @@ export const sendWelcomeEmail = async (email, name) => {
         const mailOptions = {
             from: 'Realhive Real Estate Website',
             to: email,
-            subject: `Welcome to Buenas, ${name}`,
+            subject: `Welcome to Realhive, ${name}`,
             html: WELCOME_EMAIL_TEMPLATE.replaceAll("{username}", name.toUpperCase()),
           }
         // Send the email

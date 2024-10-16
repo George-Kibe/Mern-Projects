@@ -6,8 +6,10 @@ import {
     verifyEmail, 
     forgotPassword, 
     resetPassword,
-    resetPasswordMobile
+    resetPasswordMobile,
+    checkAuth
  } from "../controllers/authController.js";
+import verifyToken, {verifyHttpOnlyToken} from "../middlewares/verifyToken.js";
 
 const router = express.Router();
 
@@ -25,5 +27,7 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 //reset password mobile
 router.post("/reset-password-mobile/:otp", resetPasswordMobile);
+// protected route
+router.get("/check-auth", verifyHttpOnlyToken ,checkAuth);
 
 export default router;

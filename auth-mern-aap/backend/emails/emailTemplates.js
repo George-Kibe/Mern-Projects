@@ -243,7 +243,7 @@ export const WELCOME_EMAIL_TEMPLATE = `
             </p>
             <ul>
                 <li>One: Smooth search of properties both for rent and for sale</li>
-                <li>Two: easy listing for your properties</li>
+                <li>Two: Easy listing for your properties</li>
                 <li>Three: Prior due diligence for most and verified properties</li>
             </ul>
 
@@ -263,7 +263,7 @@ export const WELCOME_EMAIL_TEMPLATE = `
         <!-- Footer -->
         <div class="footer">
             <p>
-                Realhive Consultants, Off Kaimiti Road, Nairobi <br>
+                Realhive Consultants, Off Kamiti Road, Nairobi <br>
                 Follow us on:
                 <a href="https://facebook.com" target="_blank">Facebook</a> |
                 <a href="https://twitter.com" target="_blank">Twitter</a> |

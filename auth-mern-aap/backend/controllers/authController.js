@@ -63,12 +63,12 @@ export const verifyEmail = async (req, res) => {
             success: false
         });
     }
-    if (user.email !== email){
-        return res.status(401).json({
-            message: "Email does not match",
-            success: false
-        });
-    }
+    // if (user.email !== email){
+    //     return res.status(401).json({
+    //         message: "Email does not match",
+    //         success: false
+    //     });
+    // }
     try {
         user.isVerified = true;
         user.verificationToken = undefined;
@@ -227,6 +227,29 @@ export const resetPasswordMobile = async (req, res) => {
         // send password reset success email
         await sendPasswordResetSuccessEmail(user.email, user.username)
         res.status(200).json({message: "Password modified successfully"});
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+            success: false
+        });
+    }
+}
+
+// Get current user details
+export const checkAuth = async (req, res) => {
+    console.log("req.userId: ", req.userId)
+    try {
+        const user = await User.findById(req.userId).select("-password");
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false
+            });
+        }
+        res.status(200).json({
+            message: "User details",
+            user
+        });
     } catch (error) {
         res.status(500).json({
             message: error.message,
