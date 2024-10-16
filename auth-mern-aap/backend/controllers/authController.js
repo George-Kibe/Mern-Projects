@@ -6,9 +6,10 @@ import {
     sendPasswordResetSuccessEmail 
 } from "../emails/emails.js";
 import User from "../models/UserModel.js";
-import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
+import { generateAccessToken, generateRefreshToken, generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import { generateVerificationCode } from "../utils/generateVerificationCode.js";
 import crypto from "crypto";
+import jwt from 'jsonwebtoken';
 
 // sign up function
 export const signUp = async (req, res) => {
@@ -112,14 +113,45 @@ export const login = async (req, res) => {
         // update last login
         user.lastLogin = new Date();
         await user.save();
+
+        const accessToken = generateAccessToken(user._id);
+        const refreshToken = generateRefreshToken(user._id);
         
         res.status(200).json({
             message: "Logged in successfully",
             success: true,
+            accessToken, 
+            refreshToken,
             user: {
                 ...user._doc,
                 password: undefined,
             }
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+            success: false
+        });
+    }
+}
+
+// get access token from refresh token
+export const getAccessToken = async (req, res) => {
+    const {refreshToken} = req.body;
+    if (!refreshToken) {
+        return res.status(400).json({message: "Please enter all fields"});
+    }
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+        const accessToken = generateAccessToken(user._id);
+        res.status(200).json({
+            message: "Access token generated successfully",
+            success: true,
+            accessToken
         });
     } catch (error) {
         res.status(500).json({
@@ -237,7 +269,7 @@ export const resetPasswordMobile = async (req, res) => {
 
 // Get current user details
 export const checkAuth = async (req, res) => {
-    console.log("req.userId: ", req.userId)
+    // console.log("req.userId: ", req.userId)
     try {
         const user = await User.findById(req.userId).select("-password");
         if (!user) {

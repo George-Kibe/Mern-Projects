@@ -2,10 +2,12 @@ import jwt from 'jsonwebtoken';
 // verify Token Middleware
 export default function verifyToken(req, res, next) {
     const bearerHeader = req.headers['authorization'];
+    // console.log("Bearer header: ", bearerHeader)
     if (typeof bearerHeader !== 'undefined') {
         const bearer = bearerHeader.split(' ');
         const bearerToken = bearer[1];
-        req.token = bearerToken;
+        const decoded = jwt.verify(bearerToken, process.env.ACCESS_TOKEN_SECRET)
+        req.userId = decoded.userId;
         next();
     } else {
         res.sendStatus(403);

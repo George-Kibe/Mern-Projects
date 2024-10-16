@@ -16,8 +16,8 @@ export const generateTokenAndSetCookie = (res, userId) => {
 };
 
 // generate Access token to last 15 minutes
-export const generateAccessToken = (res, userId) => {
-	const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+export const generateAccessToken = (userId) => {
+	const token = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
 		expiresIn: "15m",
 	});
 
@@ -25,8 +25,8 @@ export const generateAccessToken = (res, userId) => {
 };
 
 // generate refresh token valid for 365 days
-export const generateRefreshToken = (res, userId) => {
-	const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+export const generateRefreshToken = (userId) => {
+	const token = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
 		expiresIn: "365d",
 	});
 	return token;

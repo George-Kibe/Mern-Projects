@@ -37,7 +37,6 @@ export const sendVerificationEmail = async (email, verificationToken) => {
 };
 
 // welcome email
-
 export const sendWelcomeEmail = async (email, name) => {
     // Create a Nodemailer transport object (configure with your email provider)
     const transporter = nodemailer.createTransport({

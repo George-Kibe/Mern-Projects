@@ -7,6 +7,7 @@ import {
     forgotPassword, 
     resetPassword,
     resetPasswordMobile,
+    getAccessToken,
     checkAuth
  } from "../controllers/authController.js";
 import verifyToken, {verifyHttpOnlyToken} from "../middlewares/verifyToken.js";
@@ -28,6 +29,8 @@ router.post("/reset-password/:token", resetPassword);
 //reset password mobile
 router.post("/reset-password-mobile/:otp", resetPasswordMobile);
 // protected route
-router.get("/check-auth", verifyHttpOnlyToken ,checkAuth);
+router.get("/check-auth", verifyToken ,checkAuth);
+// get access token
+router.post("/refresh-token", getAccessToken);
 
 export default router;
