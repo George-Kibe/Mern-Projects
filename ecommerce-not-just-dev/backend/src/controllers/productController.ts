@@ -16,6 +16,7 @@ export async function getProductById(req: Request, res: Response){
 
 // create a new product
 export async function createProduct(req: Request, res: Response){
+    console.log(req.body)
     res.json({
         product: "Product will be created here "
     })

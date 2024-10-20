@@ -3,6 +3,10 @@ import ProductRoutes from "./routes/products";
 const app = express();
 
 const PORT = 3000;
+
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+
 app.get("/", (req, res) => {
     // respond with a json with message suerver is running fine and uptime
     res.json({
