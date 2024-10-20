@@ -1,8 +1,8 @@
 node_modules
 *.env
-frontend
 # Logs
 logs
+drizzle
 *.log
 npm-debug.log*
 yarn-debug.log*
