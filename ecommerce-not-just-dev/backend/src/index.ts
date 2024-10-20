@@ -1,4 +1,5 @@
 import express from "express";
+import ProductRoutes from "./routes/products";
 const app = express();
 
 const PORT = 3000;
@@ -13,6 +14,7 @@ app.get("/", (req, res) => {
     })
 });
 
+app.use("/api/products", ProductRoutes)
 app.listen(PORT, () => {
   console.log("Server is running on port 3000");
 });
