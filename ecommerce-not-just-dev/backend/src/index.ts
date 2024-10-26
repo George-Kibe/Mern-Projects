@@ -3,6 +3,7 @@ import ProductRoutes from "./routes/products";
 const app = express();
 
 const PORT = 3000;
+// continue from 2:12:20
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));

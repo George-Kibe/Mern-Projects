@@ -10,15 +10,16 @@ import {
   export const productsTable = pgTable('products', {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     name: varchar({ length: 255 }).notNull(),
-    description: text(),
+    description: text().notNull(),
     image: varchar({ length: 255 }),
     price: doublePrecision().notNull(),
   });
-  
+  // disbale ability to add id since its generated automatically
   export const createProductSchema = createInsertSchema(productsTable).omit({
     id: true,
   });
   
+  // diable ability to edit id
   export const updateProductSchema = createInsertSchema(productsTable)
     .omit({
       id: true,
