@@ -5,12 +5,12 @@ import {
     createProduct,
     updateProduct,
     deleteProduct
- } from "../../controllers/productController";
+ } from "../../controllers/productController.js";
 
  import {z} from 'zod';
-import { validateData } from "../../middlewares/validationMiddleware";
-import { createProductSchema, updateProductSchema } from "../../db/productSchema";
-import { verifySeller, verifyToken } from "../../middlewares/authMiddleware";
+import { validateData } from "../../middlewares/validationMiddleware.js";
+import { createProductSchema, updateProductSchema } from "../../db/productSchema.js";
+import { verifySeller, verifyToken } from "../../middlewares/authMiddleware.js";
 
 // const createProductSchema = z.object({
 //     name: z.string().min(1, { message: "Name is required" }),

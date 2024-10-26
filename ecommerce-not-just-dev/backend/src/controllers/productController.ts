@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { db } from "../db";
-import { productsTable } from "../db/productSchema";
+import { db } from "../db/index.js";
+import { productsTable } from "../db/productSchema.js";
 import { eq } from "drizzle-orm";
 import _ from 'lodash';
 
@@ -29,10 +29,11 @@ export async function getProductById(req: Request, res: Response){
             .from(productsTable)
             .where(eq(productsTable.id, Number(id)))
         if (!product) {
-            return res.status(404).json({
+            res.status(404).json({
                 message: "Product not found",
                 statuscode: 404
             })
+            return;
         }
         res.json({
             message: "success",
@@ -80,10 +81,11 @@ export async function updateProduct(req: Request, res: Response){
         .returning();
 
     if (!updatedProduct) {
-        return res.status(404).json({
+        res.status(404).json({
             message: "Product not found",
             statusCode: 404
         })
+        return
     }
     res.json({
         message: "Product updated successfully",
@@ -106,7 +108,7 @@ export async function deleteProduct(req: Request, res: Response){
             .returning();
 
         if (!deletedProduct) {
-            return res.status(404).json({
+            res.status(404).json({
                 message: "Product not found",
                 statusCode: 404
             })

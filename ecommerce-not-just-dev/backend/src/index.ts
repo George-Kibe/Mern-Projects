@@ -1,10 +1,10 @@
 import express from "express";
-import ProductRoutes from "./routes/products";
-import AuthRoutes from './routes/users'
+import ProductRoutes from "./routes/products/index.js";
+import AuthRoutes from './routes/users/index.js'
 const app = express();
 
 const PORT = process.env.PORT || 4000;
-// continue from 2:12:20
+// continue from 3:49:28
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));

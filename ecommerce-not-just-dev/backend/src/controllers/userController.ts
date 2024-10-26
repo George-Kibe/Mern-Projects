@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from 'bcryptjs';
-import { db } from "../db";
-import { usersTable } from "../db/userSchema";
+import { db } from "../db/index.js";
+import { usersTable } from "../db/userSchema.js";
 import { eq } from "drizzle-orm";
 import jwt from 'jsonwebtoken'
 // register a user 
@@ -30,7 +30,7 @@ export async function loginUser(req: Request, res: Response){
         .from(usersTable)
         .where(eq(usersTable.email, req.cleanBody.email))
     if (!user){
-        return res.status(401).json({
+        res.status(401).json({
             message: "Unauthorized. Invalid Username or Password",
             statusCode: 401
         })
@@ -38,7 +38,7 @@ export async function loginUser(req: Request, res: Response){
     try {
         const matched = await bcrypt.compare(password, user.password);
         if (!matched){
-            return res.status(401).json({
+            res.status(401).json({
                 message: "Authentication Failed",
                 statusCode: 401
             })
@@ -48,7 +48,7 @@ export async function loginUser(req: Request, res: Response){
         const refreshToken = jwt.sign({userId: user.id, role: user.role}, process.env.JWT_REFRESH_TOKEN_SECRET!, {expiresIn: '30d'});
         // @ts-ignore
         delete user.password;
-        return res.status(200).json({
+        res.status(200).json({
             message: "Login Successful",
             accessToken,
             refreshToken,
@@ -57,7 +57,7 @@ export async function loginUser(req: Request, res: Response){
         })
     } catch (error) {
         console.log(error)
-        return res.status(500).json({
+        res.status(500).json({
             message: "Internal Server Error",
             statusCode: 500
         })
