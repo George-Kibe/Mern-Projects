@@ -1,11 +1,12 @@
 import express from "express";
 import ProductRoutes from "./routes/products/index.js";
+import OrderRoutes from "./routes/orders/index.js";
 import AuthRoutes from './routes/users/index.js';
 import ServerlessHttp from "serverless-http";
 const app = express();
 
 const PORT = process.env.PORT || 4000;
-// continue from 3:58:22
+// continue from 4:28:00
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
@@ -21,8 +22,9 @@ app.get("/", (req, res) => {
     })
 });
 
-app.use("/api/products", ProductRoutes)
-app.use("/api/users", AuthRoutes)
+app.use("/api/products", ProductRoutes);
+app.use("/api/users", AuthRoutes);
+app.use("/api/orders", OrderRoutes);
 
 app.use("*", (req, res) => {
     res.status(404).json({
