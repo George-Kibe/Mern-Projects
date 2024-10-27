@@ -1,10 +1,11 @@
 import express from "express";
 import ProductRoutes from "./routes/products/index.js";
-import AuthRoutes from './routes/users/index.js'
+import AuthRoutes from './routes/users/index.js';
+import ServerlessHttp from "serverless-http";
 const app = express();
 
 const PORT = process.env.PORT || 4000;
-// continue from 3:49:28
+// continue from 3:58:22
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
@@ -31,6 +32,10 @@ app.use("*", (req, res) => {
     })
 })
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+if (process.env.NODE_ENV === "dev") {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+      });
+}
+
+export const handler = ServerlessHttp(app);
