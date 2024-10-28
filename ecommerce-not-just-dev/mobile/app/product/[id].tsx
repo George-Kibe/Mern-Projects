@@ -9,18 +9,36 @@ import { Text } from '@/components/ui/text';
 import { Heading } from '@/components/ui/heading';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
-// import { useQuery } from '@tanstack/react-query';
-// import { fetchProductById } from '@/api/products';
+import { useQuery } from '@tanstack/react-query';
+import { getProductById } from '@/api/products';
 import { ActivityIndicator } from 'react-native';
-// import { useCart } from '@/store/cartStore';
-import products from '@/assets/products.json';
-const product = products[0];
+import { useCart } from '@/store/cartStore';
 
 const DetailedProduct = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const addProduct = useCart((state) => state.addProduct);
+  const cartItems = useCart((state) => state.items)
+  console.log("Cart Items: ", cartItems)
+  const {
+    data: product,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['products', id],
+    queryFn: () => getProductById(Number(id)),
+  });
+
   const addToCart = () => {
-    
+    addProduct(product);
   }
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  if (error) {
+    return <Text>Product not found!</Text>;
+  }
+
   return (
     <Box className="flex-1 items-center p-3">
       <Stack.Screen options={{ title: product.name }} />
