@@ -13,14 +13,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
+import { useCart } from '@/store/cartStore';
+import { useAuth } from '@/store/authStore';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
-  const cartItemsNum = 1;
-  const isLoggedIn = false;
+  const cartItemsNum = useCart((state) => state.items).length;
+  const isLoggedIn = useAuth((s) => !!s.token);
+  const user = useAuth((s) => s);
+  console.log('Auth State: ', user);
+  console.log('isLoggedIn: ', isLoggedIn);
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
