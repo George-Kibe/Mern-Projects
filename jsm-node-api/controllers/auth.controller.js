@@ -11,11 +11,10 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN
 
 export const signUp = async (req, res, next) => {
   const session = await mongoose.startSession();
-  session.startTransaction();
+  // session.startTransaction();
 
   try {
     const { name, email, password } = req.body;
-
     // Check if a user already exists
     const existingUser = await User.findOne({ email });
 
@@ -33,8 +32,8 @@ export const signUp = async (req, res, next) => {
 
     const token = jwt.sign({ userId: newUsers[0]._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
-    await session.commitTransaction();
-    session.endSession();
+    // await session.commitTransaction();
+    // session.endSession();
 
     res.status(201).json({
       success: true,
@@ -45,8 +44,8 @@ export const signUp = async (req, res, next) => {
       }
     })
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
+    // await session.abortTransaction();
+    // session.endSession();
     next(error);
   }
 }

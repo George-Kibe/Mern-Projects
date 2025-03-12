@@ -6,3 +6,6 @@
 
 #### adding a Linter
 ```npx eslint --init```
+
+#### Testing Upstash and qstash locally
+```npx @upstash/qstash-cli dev```
