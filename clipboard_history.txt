@@ -1,0 +1,1 @@
+pbpaste >> clipboard_history.txt
