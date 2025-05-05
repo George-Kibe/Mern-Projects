@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "react-quill": "^2.0.0",
+    "react-quill-new": "^3.4.6",
     "timeago.js": "^4.0.2"
   }
 }
