@@ -12,18 +12,22 @@ export const clerkWebHook = async (req, res) => {
 
   const payload = req.body;
   const headers = req.headers;
-
+  // console.log("Webhook Payload: ", payload);
+  // console.log("Webhook Headers: ", headers);
   const wh = new Webhook(WEBHOOK_SECRET);
   let evt;
+
   try {
     evt = wh.verify(payload, headers);
-  } catch (err) {
-    res.status(400).json({
+  } catch (error) {
+    console.log("Webhook verification failed!", error.message);
+    return res.status(400).json({
+      success: false,
       message: "Webhook verification failed!",
     });
   }
 
-  // console.log(evt.data);
+  console.log("Webhook Event: ", evt.data);
 
   if (evt.type === "user.created") {
     const newUser = new User({
@@ -32,7 +36,6 @@ export const clerkWebHook = async (req, res) => {
       email: evt.data.email_addresses[0].email_address,
       img: evt.data.profile_img_url,
     });
-
     await newUser.save();
   }
 
@@ -41,8 +44,10 @@ export const clerkWebHook = async (req, res) => {
       clerkUserId: evt.data.id,
     });
 
-    await Post.deleteMany({user:deletedUser._id})
-    await Comment.deleteMany({user:deletedUser._id})
+    if (deletedUser) {
+      await Post.deleteMany({ user: deletedUser._id });
+      await Comment.deleteMany({ user: deletedUser._id });
+    }
   }
 
   return res.status(200).json({
