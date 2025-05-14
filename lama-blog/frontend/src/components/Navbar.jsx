@@ -1,10 +1,24 @@
 import React, { useState } from 'react'
 import { Link } from "react-router-dom";
 import Image from './Image';
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, useAuth, UserButton } from "@clerk/clerk-react";
+import { useEffect } from 'react';
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const { getToken } = useAuth();
+
+  useEffect(() => {
+    getToken()
+      .then((token) => {
+        console.log("Token: ", token);
+      })
+      .catch((error) => {
+        console.error("Error fetching token: ", error);
+      });
+  }, [])
+  
+
   return (
     <div className='w-full h-16 md:h-20 flex items-center justify-between'>
       {/* LOGO */}

@@ -4,8 +4,8 @@ import Comment from './Comment';
 const Comments = () => {  
   const handleSubmit = (e) => {
     e.preventDefault();
-    const desc = e.target.desc.value;
-    console.log(desc);
+    const description = e.target.description.value;
+    console.log(description);
     e.target.reset();
   }
   return (
@@ -16,7 +16,7 @@ const Comments = () => {
         className="flex items-center justify-between gap-8 w-full"
       >
         <textarea
-          name="desc"
+          name="description"
           placeholder="Write a comment..."
           className="w-full p-2 rounded-md"
         />

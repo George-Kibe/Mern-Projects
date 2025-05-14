@@ -83,34 +83,34 @@ export const getPost = async (req, res) => {
 };
 
 export const createPost = async (req, res) => {
-  // const clerkUserId = req.auth.userId;
+  const clerkUserId = req.auth.userId;
 
-  console.log(req.headers);
+  // console.log(req.headers);
+  console.log(req.auth);
+  if (!clerkUserId) {
+    return res.status(401).json("Not authenticated!");
+  }
 
-  // if (!clerkUserId) {
-  //   return res.status(401).json("Not authenticated!");
-  // }
+  const user = await User.findOne({ clerkUserId });
 
-  // const user = await User.findOne({ clerkUserId });
-
-  // if (!user) {
-  //   return res.status(404).json("User not found!");
-  // }
+  if (!user) {
+    return res.status(404).json("User not found!");
+  }
 
   let slug = req.body.title.replace(/ /g, "-").toLowerCase();
 
-  let existingPost = await Post.findOne({ slug });
+  let existingPostSlug = await Post.findOne({ slug });
 
   let counter = 2;
 
-  while (existingPost) {
+  while (existingPostSlug) {
     slug = `${slug}-${counter}`;
-    existingPost = await Post.findOne({ slug });
+    existingPostSlug = await Post.findOne({ slug });
     counter++;
   }
 
-  //const newPost = new Post({ user: user._id, slug, ...req.body });
-  const newPost = new Post({ slug, ...req.body });
+  const newPost = new Post({ user: user._id, slug, ...req.body });
+  // const newPost = new Post({ slug, ...req.body });
 
   const post = await newPost.save();
   res.status(200).json(post);
@@ -185,5 +185,6 @@ const imagekit = new ImageKit({
 
 export const uploadAuth = async (req, res) => {
   const result = imagekit.getAuthenticationParameters();
+  console.log("Authentication Parameters: ", result);
   res.send(result);
 };
