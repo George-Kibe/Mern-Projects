@@ -10,6 +10,8 @@ export const getPostComments = async (req, res) => {
 };
 
 export const addComment = async (req, res) => {
+  console.log("Adding comment...");
+  console.log("Request Body: ", req.body);
   const clerkUserId = req.auth.userId;
   const postId = req.params.postId;
 
@@ -18,13 +20,17 @@ export const addComment = async (req, res) => {
   }
 
   const user = await User.findOne({ clerkUserId });
-
+  console.log("User ID: ", clerkUserId);
+  console.log("User: ", user);
+  if (!user) {
+    return res.status(404).json("User not found!");
+  }
   const newComment = new Comment({
     ...req.body,
     user: user._id,
     post: postId,
   });
-
+  console.log("New Comment: ", newComment);
   const savedComment = await newComment.save();
 
   res.status(201).json(savedComment);
