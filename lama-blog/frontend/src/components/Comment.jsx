@@ -48,7 +48,7 @@ const Comment = ({ comment, postId }) => {
           {format(comment.createdAt)}
         </span>
         {user &&
-          (comment.user.username === user.username || role === "admin") && (
+          (comment.user.email === user?.emailAddresses[0].emailAddress || role === "admin") && (
             <span
               className="text-xs text-red-300 hover:text-red-500 cursor-pointer"
               onClick={() => mutation.mutate()}

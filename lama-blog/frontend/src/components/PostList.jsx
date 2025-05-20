@@ -6,22 +6,10 @@ import InfiniteScroll from "react-infinite-scroll-component";
 
 import axios from 'axios';
 
-const post = {
-  title: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-  description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-  img: "/featured1.jpeg",
-  category: "web Development",
-  user: {
-    username: "John Doe",
-  },
-  createdAt: "2 days ago",
-  slug: "lorem-ipsum-dolor-sit-amet-consectetur-adipisicing-elit",
-}
-
 const fetchPosts = async (pageParam, searchParams) => {
   const searchParamsObj = Object.fromEntries([...searchParams]);
 
-  console.log(searchParamsObj);
+  console.log("Search Params: ", searchParamsObj);
 
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/posts`, {
     params: { page: pageParam, limit: 10, ...searchParamsObj },

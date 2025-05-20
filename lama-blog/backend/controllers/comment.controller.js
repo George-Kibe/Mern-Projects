@@ -3,7 +3,7 @@ import User from "../models/user.model.js";
 
 export const getPostComments = async (req, res) => {
   const comments = await Comment.find({ post: req.params.postId })
-    .populate("user", "username img")
+    .populate("user", "username img email")
     .sort({ createdAt: -1 });
 
   res.json(comments);
@@ -51,7 +51,7 @@ export const deleteComment = async (req, res) => {
     return res.status(200).json("Comment has been deleted");
   }
 
-  const user = User.findOne({ clerkUserId });
+  const user = await User.findOne({ clerkUserId });
 
   const deletedComment = await Comment.findOneAndDelete({
     _id: id,
