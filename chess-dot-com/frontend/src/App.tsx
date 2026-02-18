@@ -7,6 +7,7 @@ import Landing from "./screens/Landing";
 import Login from "./screens/Login";
 import Game from "./screens/Game";
 import Settings from "./screens/Settings";
+import Analyze from "./screens/Analyze";
 
 function App() {
   return (
@@ -37,6 +38,10 @@ function AuthApp() {
         <Route
           path="/games/:gameId"
           element={<Layout><Game /></Layout>}
+        />
+         <Route
+          path="/analysis"
+          element={<Layout><Analyze /></Layout>}
         />
         <Route 
           path='/settings' 

@@ -1,7 +1,5 @@
 // import { PlayCard } from '@/components/Card';
 import { Footer } from '../components/Footer';
-import { useThemeContext } from '../hooks/useThemes';
-import { THEMES_DATA } from '../constants/themes';
 
 const Landing = () => {
   // const { theme } = useThemeContext();

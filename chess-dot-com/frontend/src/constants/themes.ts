@@ -1,4 +1,4 @@
-import { type THEME } from "../context/themeContext"
+import { type THEME } from "../context/theme"
 
 type THEME_DATA = {
   id: number,
