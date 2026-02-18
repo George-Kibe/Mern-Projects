@@ -39,9 +39,11 @@ export class Game{
     }){
         // validate the move type using zod
         if (this.board.turn() === "w" && socket !== this.player1){
+            socket.send(JSON.stringify({ type: "ERROR", payload: "Illegal move. It's not your turn!. Its blacks turn" }));
             return;
         }
         if (this.board.turn() === "b" && socket !== this.player2){
+            socket.send(JSON.stringify({ type: "ERROR", payload: "Illegal move. It's not your turn!. Its white's turn" }));
             return;
         }
         // is it this users move?
@@ -52,18 +54,30 @@ export class Game{
             const result = this.board.move(move);
             if (!result) return; // illegal move protection
             // send move to the opponent
-            console.log("Move Result: ", result)
+            //console.log("Move Result: ", result)
             if (result.color === 'w') {
                 // white moved → notify black player
                 this.player2.send(JSON.stringify({
                     type: MOVE,
-                    payload: result
+                    payload: result,
+                    move: move
+                }));
+                this.player1.send(JSON.stringify({
+                    type: MOVE,
+                    payload: result,
+                    move: move
                 }));
             } else {
                 // black moved → notify white player
                 this.player1.send(JSON.stringify({
                     type: MOVE,
-                    payload: result
+                    payload: result,
+                    move: move
+                }));
+                this.player2.send(JSON.stringify({
+                    type: MOVE,
+                    payload: result,
+                    move: move
                 }));
             }
         } catch (error) {
