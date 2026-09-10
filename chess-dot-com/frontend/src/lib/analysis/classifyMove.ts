@@ -148,6 +148,10 @@ export function annotateMoves(params: {
 
     let tag = classifyLoss(lossCp);
 
+    // Delivering mate ends the game, so there is no "after" position to score.
+    // Without this it falls through to the null-loss default of "good".
+    if (san.includes('#')) tag = 'best';
+
     // Approx "brilliant": sacrifice material (>= 3 points) and improve eval.
     // This is a heuristic placeholder until we implement deeper PV-based tactics detection.
     const matBefore = materialByColor(fens[ply]);

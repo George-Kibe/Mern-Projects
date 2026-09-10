@@ -1,26 +1,33 @@
 {
   "name": "backend-server",
   "version": "1.0.0",
-  "description": "This is a server for a chess website similar to chess.com",
-  "main": "index.js",
+  "description": "WebSocket game server for a personal chess training site",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx tsc -b && node dist/index.js"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -b",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -b",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "chess",
     "chess.js",
-    "websockets"
+    "websockets",
+    "stockfish"
   ],
   "author": "George Kibe (Harkirat Courtesy)",
   "license": "MIT",
-  "devDependencies": {
-    "typescript": "^5.9.3"
-  },
   "dependencies": {
-    "@types/ws": "^8.18.1",
     "chess.js": "^1.4.0",
-    "ws": "^8.19.0"
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.4",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.23.13",
+    "typescript": "~6.0.3"
   }
 }

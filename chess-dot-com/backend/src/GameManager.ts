@@ -1,6 +1,6 @@
 import type WebSocket from "ws";
 import { Game } from "./Game.js";
-import { INIT_GAME, MOVE } from "./messages.js";
+import { GAME_OVER, INIT_GAME, MOVE } from "./messages.js";
 
 export class GameManager {
     private games: Game[];
@@ -20,6 +20,26 @@ export class GameManager {
 
     removeUser(socket: WebSocket){
         this.users = this.users.filter(user => user !== socket);
+
+        // A socket that goes away must not stay queued as the waiting player,
+        // or the next person to arrive gets paired with a closed connection.
+        if (this.pendingUser === socket){
+            this.pendingUser = null;
+        }
+
+        // Drop any game this socket was in, and tell the opponent why it ended.
+        this.games = this.games.filter(game => {
+            if (game.player1 !== socket && game.player2 !== socket) return true;
+
+            const opponent = game.player1 === socket ? game.player2 : game.player1;
+            if (opponent.readyState === opponent.OPEN){
+                opponent.send(JSON.stringify({
+                    type: GAME_OVER,
+                    payload: { winner: "opponent disconnected" }
+                }));
+            }
+            return false;
+        });
     }
 
     private addHandler(socket: WebSocket){
