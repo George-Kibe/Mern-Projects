@@ -1,0 +1,17 @@
+# Deployment for a host that supports long-lived WebSocket connections.
+#
+# The game server cannot run on Vercel: Vercel's functions are serverless and
+# cannot hold a WebSocket open, and this server also shells out to local
+# text-to-speech binaries. Render's free tier does both.
+services:
+  - type: web
+    name: chess-trainer-server
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"

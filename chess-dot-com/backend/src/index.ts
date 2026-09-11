@@ -1,7 +1,18 @@
+import { existsSync } from "node:fs";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { WebSocketServer } from "ws";
 import { GameManager } from "./GameManager.js";
 import { isSpeechAvailable, listModules, listVoices, speakOnHost, stopHostSpeech } from "./speech.js";
+import { availableEngines, refreshEngines, renderSpeech, type EngineId } from "./tts.js";
+
+// Local config (Piper paths, port) without exporting anything by hand.
+if (existsSync(".env")) {
+    try {
+        process.loadEnvFile(".env");
+    } catch (err) {
+        console.error("Could not read .env:", err);
+    }
+}
 
 const PORT = Number(process.env.PORT ?? 8000);
 
@@ -44,12 +55,59 @@ const server = createServer(async (req, res) => {
         return;
     }
 
+    // Liveness probe for the platform's health checks.
+    if (url === "/health" || url === "/") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true, service: "chess-trainer-server" }));
+        return;
+    }
+
     // Voices the host can speak with, so the web app can offer a real choice.
     if (url.startsWith("/speech/voices")) {
         const mod = new URL(url, "http://localhost").searchParams.get("module") ?? undefined;
         const [modules, voices] = await Promise.all([listModules(), listVoices(mod)]);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ modules, voices }));
+        return;
+    }
+
+    // Engines that can render audio for the browser to play.
+    if (url === "/speech/engines") {
+        refreshEngines();
+        const engines = await availableEngines();
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ engines }));
+        return;
+    }
+
+    // Render speech to WAV and hand it back — the browser plays it, so this
+    // works with no launch flags and respects the tab's own volume.
+    if (url === "/speech/audio" && req.method === "POST") {
+        try {
+            const body = JSON.parse(await readBody(req)) as {
+                text?: string;
+                engine?: EngineId;
+                rate?: number;
+                pitch?: number;
+            };
+            if (typeof body.text !== "string") {
+                res.writeHead(400).end();
+                return;
+            }
+
+            const { wav, engine } = await renderSpeech(body.text, body.engine, body);
+            res.writeHead(200, {
+                "Content-Type": "audio/wav",
+                "Content-Length": String(wav.length),
+                "X-Speech-Engine": engine,
+                "Cache-Control": "no-store",
+            });
+            res.end(wav);
+        } catch (err) {
+            console.error("[speech] render failed", err);
+            res.writeHead(503, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: String(err) }));
+        }
         return;
     }
 
@@ -101,9 +159,14 @@ wss.on("connection", function connection(ws) {
 
 server.listen(PORT, async () => {
     console.log(`Game server listening on ws://localhost:${PORT}`);
-    console.log(
-        (await isSpeechAvailable())
-            ? "Host speech available (spd-say) — the web app can fall back to it."
-            : "Host speech unavailable: spd-say not found. Install speech-dispatcher for the voice fallback.",
-    );
+    const engines = await availableEngines();
+    if (engines.length > 0) {
+        console.log(`Voice: rendering audio with ${engines[0]!.name} (browser plays it).`);
+    } else if (await isSpeechAvailable()) {
+        console.log("Voice: falling back to spd-say. For a much better voice, install one of:");
+        console.log("  sudo apt install libttspico-utils     # clear and natural");
+        console.log("  sudo apt install espeak-ng            # robotic but tiny");
+    } else {
+        console.log("Voice unavailable: install libttspico-utils or espeak-ng.");
+    }
 });

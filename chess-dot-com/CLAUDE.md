@@ -19,7 +19,7 @@ Concretely:
   anti-cheat. There is one user and no adversary. Login was deliberately removed.
 - **Don't add** a database, Docker, or CI unless asked. localStorage is a
   deliberate choice, not an oversight.
-- **Everything lives on one screen.** Three panels behind tabs, no router. If a
+- **Everything lives on one screen.** Five panels behind tabs, no router. If a
   feature seems to want its own page, it wants a panel instead.
 
 ## Repository layout — read before any git operation
@@ -84,6 +84,61 @@ Never interleave calls on one instance.
 | `lib/analysis/narrate.ts` | Assembles spoken coaching. |
 | `lib/speech/sanToSpeech.ts` | Notation → readable English. |
 | `panels/Analyze.tsx` | Orchestrates all of the above. |
+| `lib/openings/catalog.ts` | Hand-written opening repertoire: lines, per-move notes, middlegame plans, common mistakes. |
+| `lib/puzzles/generate.ts` | Builds tactics on demand — playout, induced mistake, then keep only positions with one decisively best move. |
+
+**The opening catalog is hand-written, and every line must be legal.** It is
+curated rather than imported because the value is the *ideas* — notes, plans and
+the mistake people actually make — not coverage. After editing
+`lib/openings/catalog.ts`, replay every line through chess.js before shipping: a
+single wrong SAN silently truncates an opening. Note keys are ply indices and
+must be within `moves.length`.
+
+**Puzzles are generated, never bundled**, which is what makes them unrepeatable.
+Three things that were learned the hard way:
+
+- Endgames are *composed* (random legal placement), not played down to. A full
+  playout to move 45 took over a minute and usually ended in mate first.
+- One playout is reused for several candidate mistakes. Testing a single blunder
+  per playout threw away the expensive part and almost never found a tactic.
+- Solution length tracks the requested rating. With a fixed length every puzzle
+  scored roughly the same and the difficulty slider did nothing.
+
+Mate puzzles are capped at mate-in-4 and end on the mating move; a truncated
+mate reads as a broken puzzle. The rating is an explicit heuristic — say so in
+the UI rather than implying it is an Elo.
+
+**Never depend on a hook's returned object in a `useCallback`/`useEffect` dep
+array when that hook re-renders on a timer.** `useChessClock` returns a fresh
+object every 100ms; putting `clock` in `applyMove`'s deps rebuilt it ten times a
+second, which re-ran the engine-move effect and aborted its search every tick —
+the engine simply stopped replying. Destructure the stable callbacks
+(`const { press, reset } = clock`) and depend on those.
+
+**A panel that starts work on mount must be lazily mounted.** `Home` tracks
+`visited` tabs so `Puzzles` does not begin generating on page load. And do not
+add an "already ran" ref guard to a mount effect that starts async work:
+StrictMode's cleanup aborts the first run, and the guard then blocks the
+remount, so nothing ever happens.
+
+## Deployment shape
+
+`frontend` is a static build and deploys to Vercel as-is (root directory
+`frontend`, config in `frontend/vercel.json`). **The backend cannot go to
+Vercel** — serverless functions cannot hold a WebSocket open, and it spawns TTS
+binaries. `backend/render.yaml` and `backend/Dockerfile` cover hosts that can.
+
+Consequences to preserve:
+
+- **The app must work with no server at all.** `lib/config.ts` resolves
+  `WS_URL` to null when nothing is configured and the page is not on localhost,
+  and every server call short-circuits on that. Verified: a remote visitor gets
+  zero failed requests and zero console errors.
+- `npm run build` runs `copy-stockfish` itself rather than relying on
+  `postinstall`, so a host that installs with `--ignore-scripts` still produces
+  a working engine.
+- `public/stockfish/` is gitignored and generated at build time — do not commit
+  it, and do not assume it exists in a fresh checkout.
 
 ## Conventions that are easy to get wrong
 
@@ -121,6 +176,41 @@ called a mate-in-one blunder "a reasonable move, no evaluation". The auto-speak
 guard is keyed on the narration *text*, not the ply, so advice that improves once
 the engine catches up is spoken while a re-render is not.
 
+**Never call `scrollIntoView` inside a panel.** `block: 'nearest'` walks up to
+the *window* and scrolls the whole page, which dragged the board completely off
+screen on every move (measured: board top +74 → −581 over 14 moves). Scroll the
+container directly — `MoveList` owns its own `overflow-y-auto` box and adjusts
+`scrollTop` itself.
+
+**The board column is `xl:sticky` with a capped height**, and the coaching area
+beneath it is the flex child that scrolls. Anything added to that column must be
+`shrink-0` (board, nav, tactic banner) or go inside the scrolling wrapper, or the
+column grows past the viewport and the board drifts again. Board and eval bar
+take size classes as props so the two can be kept in step.
+
+**Teaching content and its controls must be above the fold.** The step controls
+once sat after the explanation at the bottom of a scrolling column; they rendered
+at y=741 of a 768px viewport and read as "there is no way to continue". In
+`LearnPanel` the order is header → controls → explanation → move chips, and the
+controls are outside the scrolling region. Check any new panel against a 768px
+viewport before calling it done.
+
+**`detectMoment` (lib/analysis/moment.ts) is the teaching layer**, sitting above
+`classifyMove` and `detectTactic`: it decides what is worth stopping for and
+attaches the lines that justify it. A verdict without a playable line teaches
+nothing, so every moment carries `lines` — typically the refutation from the
+position now on the board, plus what should have been played from the position
+before it.
+
+`findMoments` de-duplicates tactics per side, and tracks the tactic
+*independently of which moment type won* — a blunder is reported in preference to
+the tactic it creates, and resetting the run on it re-listed the same tactic every
+other move (24 entries for a 54-ply game, down to 12 once fixed).
+
+**A variation preview starts at `idx: 1`, not 0.** Index 0 is the position the
+line starts *from*, so opening a tactic there leaves the board unchanged and
+looks like the button did nothing — which is exactly how it shipped once.
+
 **A tactic is not the same as a winning evaluation.** `detectTactic` subtracts
 the material already on the board from the engine's score, so being a rook up
 with nothing to do does not register — only advantage *available beyond* current
@@ -132,7 +222,20 @@ preceding ply reports one continuing tactic as a new one every second move.
 move when `ply` is even. Getting this subtly wrong labelled a jump-back button
 "move 6" for move 7.
 
-**Voice has two channels.** Browser speech first; if the browser exposes no
+**Voice: render server-side, play in the page.** `backend/src/tts.ts` renders a
+WAV (Piper > Pico > espeak-ng, first one installed wins) and `/speech/audio`
+serves it; the frontend plays it through an `Audio` element. This is the primary
+route and the only one that needs nothing from the browser's speech stack —
+prefer it, and keep the other two only as fallbacks.
+
+Details that matter: **Piper reads its text on stdin**, not as an argument, and
+it is normally unpacked under `~/.local` rather than onto PATH, so `PIPER_BIN`
+and `PIPER_VOICE` come from `backend/.env` (read via `process.loadEnvFile`, and
+gitignored). Piper has no pitch control and Pico has neither rate nor pitch —
+playback rate is applied in the browser instead, and the UI hides controls the
+chosen engine cannot honour.
+
+**Voice also has two legacy channels.** Browser speech first; if the browser exposes no
 voices, the app POSTs to the backend's `/speech/say`, which speaks via `spd-say`
 on the host. That exists because Chrome on Linux hides every system voice unless
 launched with `--enable-speech-dispatcher`, which a web page can neither detect
@@ -177,6 +280,20 @@ actually played there.
 **Tailwind 4 is CSS-configured.** No `tailwind.config.js`. Tokens go in the
 `@theme` block in `src/index.css`; `--color-panel` yields `bg-panel`. Utilities
 for tokens that don't exist silently emit nothing — that was a real bug once.
+
+**Persisted state must be MERGED onto the current defaults, never assigned over
+them.** `loadPersistedState` reads localStorage written by *older builds*, which
+lack every field added since. Assigning that object straight into the slice
+leaves new fields `undefined`, and the first render that reads through one
+(`settings.hostVoice.module`) throws — unmounting the whole app to a blank page.
+This shipped once and looked like "the site doesn't load".
+
+Two consequences for any new slice field:
+- Merge it in `store/persist.ts`, including a nested merge for object fields.
+- Automated tests start with empty localStorage and will **never** catch this.
+  Seed a previous-shape payload via `evaluateOnNewDocument` when testing, and an
+  `ErrorBoundary` (`components/ErrorBoundary.tsx`) catches whatever still slips
+  through, offering to clear saved data instead of showing nothing.
 
 **Redux Toolkit with pre-typed hooks.** Use `useAppSelector`/`useAppDispatch`
 from `src/store`, never the bare `react-redux` hooks. State that should survive a
