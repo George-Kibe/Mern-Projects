@@ -2,17 +2,25 @@ import { useCallback, useState } from 'react';
 import { Analyze } from '../panels/Analyze';
 import { PlayEngine } from '../panels/PlayEngine';
 import { PlayFriend } from '../panels/PlayFriend';
+import { LearnOpenings } from '../panels/LearnOpenings';
+import { Puzzles } from '../panels/Puzzles';
 
-type Mode = 'play' | 'friend' | 'analyze';
+type Mode = 'play' | 'openings' | 'puzzles' | 'friend' | 'analyze';
 
 const TABS: Array<{ id: Mode; label: string; hint: string }> = [
   { id: 'play', label: 'Play the engine', hint: 'Pick a strength and play a training game' },
   { id: 'analyze', label: 'Analyze', hint: 'Load a PGN and go through it with the engine' },
+  { id: 'openings', label: 'Learn openings', hint: 'Study and drill the main openings, and the plans they lead to' },
+  { id: 'puzzles', label: 'Puzzles', hint: 'Endless engine-generated tactics at the difficulty and phase you choose' },
   { id: 'friend', label: 'Play a friend', hint: 'Two browsers, one game, over the local server' },
 ];
 
 export function Home() {
   const [mode, setMode] = useState<Mode>('play');
+
+  // Puzzle generation starts as soon as the panel mounts, so it waits until the
+  // tab has actually been opened rather than burning the engine on page load.
+  const [visited, setVisited] = useState<Set<Mode>>(() => new Set<Mode>(['play']));
 
   // Bumping the token re-triggers the load even if the same PGN comes back.
   const [pgnToLoad, setPgnToLoad] = useState<{ pgn: string; label: string; token: number } | null>(null);
@@ -31,11 +39,14 @@ export function Home() {
           <h1 className="text-lg font-bold tracking-tight">Chess Trainer</h1>
         </div>
 
-        <nav className="flex gap-1 rounded-lg border border-line bg-panel p-1">
+        <nav className="flex flex-wrap gap-1 rounded-lg border border-line bg-panel p-1">
           {TABS.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setMode(tab.id)}
+              onClick={() => {
+                setMode(tab.id);
+                setVisited((seen) => (seen.has(tab.id) ? seen : new Set(seen).add(tab.id)));
+              }}
               title={tab.hint}
               className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
                 mode === tab.id ? 'bg-accent text-black' : 'text-ink-soft hover:text-ink'
@@ -58,6 +69,13 @@ export function Home() {
         </div>
         <div hidden={mode !== 'analyze'}>
           <Analyze pgnToLoad={pgnToLoad} />
+        </div>
+        <div hidden={mode !== 'openings'}>
+          <LearnOpenings onPlayFrom={sendToAnalysis} />
+        </div>
+        <div hidden={mode !== 'puzzles'}>
+          {/* Mounted only on demand: it starts generating a puzzle immediately. */}
+          {visited.has('puzzles') ? <Puzzles /> : null}
         </div>
         <div hidden={mode !== 'friend'}>
           <PlayFriend onAnalyze={sendToAnalysis} />

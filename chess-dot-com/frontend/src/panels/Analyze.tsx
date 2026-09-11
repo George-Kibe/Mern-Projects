@@ -10,23 +10,36 @@ import { buildAnnotatedPgn, downloadTextFile, pgnFilename } from '../lib/pgn/exp
 import { annotateMoves, type MoveAnnotation } from '../lib/analysis/classifyMove';
 import { buildNarration } from '../lib/analysis/narrate';
 import { accuracyFromLosses, formatCp, scoreToCp } from '../lib/analysis/score';
-import { describeGain, detectTactic, findTacticMoments } from '../lib/analysis/detectTactic';
-import { formatSanLine, pvToSan } from '../lib/chess/describeMove';
+import { detectMoment, findMoments, type MomentLine } from '../lib/analysis/moment';
+import { LearnPanel } from '../components/LearnPanel';
+import { describeMove, pvToSan } from '../lib/chess/describeMove';
 import type { StockfishAnalysis } from '../lib/stockfish/engine';
 import { getEngine } from '../lib/stockfish/pool';
 import { describeSpeechProblem, useSpeech } from '../lib/speech/useSpeech';
 import {
   checkServerSpeech,
   fetchHostVoices,
+  fetchTtsEngines,
   serverSpeak,
   serverStopSpeech,
+  speakRendered,
+  stopRenderedSpeech,
   type HostVoice,
+  type TtsEngineInfo,
 } from '../lib/speech/serverSpeech';
 import { useAppDispatch, useAppSelector } from '../store';
 import { setAnalysisMovetimeMs, setHostVoice, setMultiPv, setVoiceEnabled, setVoiceRate, setVoiceUri } from '../store/engineSlice';
 import { removeGame, saveGame } from '../store/gamesSlice';
 
-type Preview = { basePly: number; fens: string[]; sans: string[]; idx: number };
+type Preview = {
+  basePly: number;
+  fens: string[];
+  sans: string[];
+  uci: string[];
+  /** 0 = the position the line starts from; 1 = after its first move. */
+  idx: number;
+  label: string;
+};
 
 const START_FEN = new Chess().fen();
 
@@ -71,6 +84,17 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
 
   const browserVoiceUsable = speech.supported && speech.hasVoices;
 
+  const [ttsEngines, setTtsEngines] = useState<TtsEngineInfo[]>([]);
+  useEffect(() => {
+    if (!serverVoice) return;
+    const ac = new AbortController();
+    void (async () => {
+      const engines = await fetchTtsEngines(ac.signal);
+      if (!ac.signal.aborted) setTtsEngines(engines);
+    })();
+    return () => ac.abort();
+  }, [serverVoice]);
+
   const [hostVoices, setHostVoices] = useState<HostVoice[]>([]);
   const [hostModules, setHostModules] = useState<string[]>([]);
   useEffect(() => {
@@ -85,9 +109,28 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
     return () => ac.abort();
   }, [serverVoice, settings.hostVoice.module]);
 
-  /** Speak through whichever channel actually works. */
+  const renderedVoice = ttsEngines.length > 0;
+  // Only espeak-ng (and the spd-say route) expose a pitch control.
+  const pitchSupported = !renderedVoice || (settings.hostVoice.module ?? ttsEngines[0]?.id) === 'espeak-ng';
+
+  /**
+   * Speak through whichever channel actually works, best first.
+   *
+   * Server-rendered audio wins when available: it is the only route that needs
+   * nothing from the browser's own speech stack, which is what kept failing.
+   */
   const say = useCallback(
     (text: string) => {
+      if (renderedVoice) {
+        void (async () => {
+          const played = await speakRendered(text, settings.hostVoice, settings.hostVoice.module ?? undefined);
+          if (played) return;
+          // Rendering or playback failed — fall back rather than go silent.
+          if (browserVoiceUsable) speech.speak(text);
+          else if (serverVoice) void serverSpeak(text, settings.hostVoice);
+        })();
+        return;
+      }
       if (browserVoiceUsable) {
         speech.speak(text);
         return;
@@ -96,11 +139,12 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
         void serverSpeak(text, settings.hostVoice);
       }
     },
-    [browserVoiceUsable, serverVoice, speech, settings.hostVoice],
+    [renderedVoice, browserVoiceUsable, serverVoice, speech, settings.hostVoice],
   );
 
   const hushAll = useCallback(() => {
     speech.cancel();
+    stopRenderedSpeech();
     if (serverVoice) void serverStopSpeech();
   }, [speech, serverVoice]);
 
@@ -157,6 +201,15 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
     };
   }, [annotations]);
 
+  // Coach text for the move being shown inside a variation.
+  const previewInsight = useMemo(() => {
+    if (!preview || preview.idx < 1) return null;
+    const fenBefore = preview.fens[preview.idx - 1];
+    const uci = preview.uci[preview.idx - 1];
+    if (!fenBefore || !uci) return null;
+    return describeMove(fenBefore, uci);
+  }, [preview]);
+
   const keyMoments = useMemo(
     () =>
       annotations.filter(
@@ -168,27 +221,60 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
   const displayedFen = preview ? preview.fens[preview.idx] : (game?.fens[currentPly] ?? START_FEN);
   const currentAnalysis = analysis[currentPly] ?? null;
 
-  // Something concrete to win right here?
-  const tactic = useMemo(
-    () => (game && !preview ? detectTactic(game.fens[currentPly], currentAnalysis) : null),
-    [game, currentPly, currentAnalysis, preview],
-  );
+  // What is there to learn at the position on screen?
+  const moment = useMemo(() => {
+    if (!game) return null;
+    return detectMoment({
+      ply: currentPly,
+      fens: game.fens,
+      sanMoves: game.sanMoves,
+      annotations,
+      analyses: analysis,
+    });
+  }, [game, currentPly, annotations, analysis]);
 
-  const tacticMoments = useMemo(
-    () => (game ? findTacticMoments(game.fens, analysis) : []),
-    [game, analysis],
-  );
+  /** Every teaching moment in the game, for the jump-to list. */
+  const allMoments = useMemo(() => {
+    if (!game) return [];
+    return findMoments({
+      fens: game.fens,
+      sanMoves: game.sanMoves,
+      annotations,
+      analyses: analysis,
+    });
+  }, [game, annotations, analysis]);
 
   /** Step through a line on the board, keeping the way back to the game. */
   const playOutLine = useCallback(
-    (fromPly: number, pv: string[]) => {
+    (fromPly: number, pv: string[], label = 'Engine line') => {
       if (!game) return;
       const baseFen = game.fens[fromPly];
       const sans = pvToSan(baseFen, pv, 12);
       const fens = fensForLine(baseFen, pv, 12);
-      if (fens.length > 1) setPreview({ basePly: fromPly, fens, sans, idx: 0 });
+      if (fens.length < 2) return;
+
+      // Start on the first move of the line, not on the position it starts from
+      // — landing on the unchanged board looks like the button did nothing.
+      setPreview({
+        basePly: fromPly,
+        fens,
+        sans,
+        uci: pv.slice(0, fens.length - 1),
+        idx: 1,
+        label,
+      });
     },
     [game],
+  );
+
+  /** Open one of a moment's lines, moving the board there first if needed. */
+  const openLine = useCallback(
+    (line: MomentLine) => {
+      if (!game) return;
+      if (line.fromPly !== currentPly) setCurrentPly(line.fromPly);
+      playOutLine(line.fromPly, line.pv, line.label);
+    },
+    [game, currentPly, playOutLine],
   );
 
 
@@ -276,7 +362,7 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
       if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        if (preview) setPreview((p) => (p ? { ...p, idx: Math.max(0, p.idx - 1) } : p));
+        if (preview) setPreview((p) => (p ? { ...p, idx: Math.max(1, p.idx - 1) } : p));
         else goTo(currentPly - 1);
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
@@ -358,24 +444,30 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
   const totalPositions = game?.fens.length ?? 0;
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
-      {/* ---------- Board column ---------- */}
-      <div className="flex flex-col gap-3">
+    <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+      {/* ---------- Board column ----------
+          Pinned to the top of the viewport so stepping through a game never
+          moves the board: only the analysis underneath it scrolls. */}
+      <div className="flex flex-col gap-3 xl:sticky xl:top-3 xl:max-h-[calc(100vh-1.5rem)]">
         {!game ? (
           <PgnLoader onLoad={loadPgn} error={error} />
         ) : (
           <>
-            <div className="flex items-start gap-3">
-              <EvalBar cp={evalsCp[currentPly] ?? null} />
+            <div className="flex shrink-0 items-start gap-3">
+              <EvalBar cp={evalsCp[currentPly] ?? null} height="h-[min(54vh,520px)]" />
               <Board
                 fen={displayedFen}
                 orientation={orientation}
                 lastMove={lastMove}
                 arrows={arrows}
+                maxSize="max-w-[min(54vh,520px)]"
+                alert={
+                  !preview && moment ? { label: moment.badge, tone: moment.tone } : null
+                }
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
               <Button onClick={() => goTo(0)} disabled={currentPly === 0} variant="ghost">⏮</Button>
               <Button onClick={() => goTo(currentPly - 1)} disabled={currentPly === 0} variant="ghost">◀</Button>
               <Button
@@ -401,109 +493,35 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
               </span>
             </div>
 
-            {preview ? (
-              <div className="flex items-center gap-2 rounded border border-accent/40 bg-panel px-3 py-2 text-sm">
-                <span className="font-mono text-xs text-ink-soft">
-                  Variation: {preview.sans.slice(0, preview.idx).join(' ') || '(start)'}
-                </span>
-                <Button variant="ghost" onClick={() => setPreview(null)} className="ml-auto">
-                  ↩ Back to move {Math.floor(preview.basePly / 2) + 1}
-                  {preview.basePly % 2 === 0 ? '' : '…'}
-                </Button>
-              </div>
-            ) : null}
-
-            {/* ---------- Tactic alert ---------- */}
-            {tactic ? (
-              <div
-                className={`flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2 ${
-                  tactic.kind === 'mate'
-                    ? 'border-tag-brilliant/60 bg-tag-brilliant/10'
-                    : 'border-tag-inaccuracy/60 bg-tag-inaccuracy/10'
-                }`}
-              >
-                <span className="text-lg" aria-hidden>
-                  {tactic.kind === 'mate' ? '♛' : '⚡'}
-                </span>
-                <div className="flex-1 text-sm">
-                  <div className="font-semibold">
-                    {tactic.kind === 'mate'
-                      ? `Forced mate in ${tactic.movesToMate} for ${tactic.side === 'w' ? 'White' : 'Black'}`
-                      : `${tactic.side === 'w' ? 'White' : 'Black'} can win ${describeGain(tactic.gainCp)} here`}
-                  </div>
-                  <div className="font-mono text-xs text-ink-soft">
-                    {formatSanLine(tactic.sans.slice(0, 6), currentPly)}
-                  </div>
-                </div>
-                <Button variant="primary" onClick={() => playOutLine(currentPly, tactic.pv)}>
-                  {tactic.kind === 'mate' ? 'Show the mating moves' : 'Show the winning moves'}
-                </Button>
-              </div>
-            ) : null}
-
-            {/* ---------- Coaching ---------- */}
-            <Panel
-              title="Coach"
-              actions={
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={settings.voiceEnabled ? 'primary' : 'ghost'}
-                    onClick={() => {
-                      const next = !settings.voiceEnabled;
-                      dispatch(setVoiceEnabled(next));
-                      if (next) {
-                        // Speak straight away: it confirms the voice works, and
-                        // the click satisfies browsers that require a gesture.
-                        if (narration) say(narration);
-                      } else {
-                        hushAll();
-                      }
-                    }}
-                    title="Read the coaching aloud as you step through the game"
-                  >
-                    {settings.voiceEnabled ? '🔊 Voice on' : '🔇 Voice off'}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => (speech.speaking ? hushAll() : narration && say(narration))}
-                    disabled={!narration}
-                  >
-                    {speech.speaking ? '■ Stop' : '▶ Speak'}
-                  </Button>
-                </div>
+            <LearnPanel
+              moment={preview ? null : moment}
+              fallbackText={narration}
+              open={
+                preview
+                  ? {
+                      lineId: preview.label,
+                      label: preview.label,
+                      basePly: preview.basePly,
+                      sans: preview.sans,
+                      idx: preview.idx,
+                    }
+                  : null
               }
-              bodyClassName="p-3"
-            >
-              {narration ? (
-                <p className="text-sm leading-relaxed">{narration}</p>
-              ) : (
-                <p className="text-sm text-ink-soft">
-                  {currentPly === 0
-                    ? 'Starting position. Step forward to hear the analysis.'
-                    : 'Evaluating this move…'}
-                </p>
-              )}
+              insight={previewInsight}
+              onOpenLine={openLine}
+              onStep={(idx) =>
+                setPreview((p) =>
+                  p ? { ...p, idx: Math.max(1, Math.min(p.fens.length - 1, idx)) } : p,
+                )
+              }
+              onClose={() => setPreview(null)}
+              onSpeak={() => {
+                if (speech.speaking) hushAll();
+                else if (narration) say(narration);
+              }}
+              speaking={speech.speaking}
+            />
 
-              {/* Speech fails silently in several ways — say which one, and only
-                  complain when neither the browser nor the server can speak. */}
-              {settings.voiceEnabled && !browserVoiceUsable && serverVoice ? (
-                <p className="mt-2 text-xs text-ink-soft">
-                  Your browser exposes no voices, so this is being spoken by the local
-                  server instead.
-                </p>
-              ) : null}
-
-              {settings.voiceEnabled && !browserVoiceUsable && serverVoice === false && speech.voicesSettled ? (
-                <div className="mt-2 rounded border border-tag-inaccuracy/40 bg-panel-soft px-2 py-1.5 text-xs text-tag-inaccuracy">
-                  <p>{describeSpeechProblem(speech.problem ?? { kind: 'no-voices' })}</p>
-                  <p className="mt-1 text-ink-soft">
-                    Alternatively, start the game server (<code>npm run dev</code> in{' '}
-                    <code>backend/</code>) and reload — it can speak through your system
-                    instead, with no browser flags.
-                  </p>
-                </div>
-              ) : null}
-            </Panel>
           </>
         )}
       </div>
@@ -631,9 +649,24 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
             ) : null}
 
             {/* Host voice: espeak-ng defaults are quiet and fast, so these matter. */}
-            {settings.voiceEnabled && !browserVoiceUsable && serverVoice ? (
+            {settings.voiceEnabled && (renderedVoice || (!browserVoiceUsable && serverVoice)) ? (
               <div className="mt-2 flex flex-col gap-2">
-                {hostModules.length > 1 ? (
+                {renderedVoice ? (
+                  <Field label="Voice engine">
+                    <Select
+                      value={settings.hostVoice.module ?? ttsEngines[0].id}
+                      onChange={(v) => dispatch(setHostVoice({ module: v }))}
+                    >
+                      {ttsEngines.map((e) => (
+                        <option key={e.id} value={e.id}>
+                          {e.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                ) : null}
+
+                {!renderedVoice && hostModules.length > 1 ? (
                   <Field label="Engine">
                     <Select
                       value={settings.hostVoice.module ?? ''}
@@ -647,24 +680,30 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
                   </Field>
                 ) : null}
 
-                <Field label="Voice">
-                  <Select
-                    value={settings.hostVoice.voice ?? ''}
-                    onChange={(v) => dispatch(setHostVoice({ voice: v || null }))}
-                  >
-                    <option value="">Default</option>
-                    {hostVoices.map((v) => (
-                      <option key={v.name} value={v.name}>
-                        {v.name} ({v.language})
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
+                {!renderedVoice ? (
+                  <Field label="Voice">
+                    <Select
+                      value={settings.hostVoice.voice ?? ''}
+                      onChange={(v) => dispatch(setHostVoice({ voice: v || null }))}
+                    >
+                      <option value="">Default</option>
+                      {hostVoices.map((v) => (
+                        <option key={v.name} value={v.name}>
+                          {v.name} ({v.language})
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                ) : null}
 
-                <div className="grid grid-cols-3 gap-2">
-                  <Field label={`Volume ${settings.hostVoice.volume}`}>
+                <div className={`grid gap-2 ${pitchSupported ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                  <Field label={`Volume ${Math.max(0, settings.hostVoice.volume)}%`}>
                     <input
-                      type="range" min={-100} max={100} step={5}
+                      type="range"
+                      // Rendered audio plays through the page, where volume is 0-100%.
+                      min={renderedVoice ? 0 : -100}
+                      max={100}
+                      step={5}
                       value={settings.hostVoice.volume}
                       onChange={(e) => dispatch(setHostVoice({ volume: Number(e.target.value) }))}
                       className="accent-accent"
@@ -678,14 +717,16 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
                       className="accent-accent"
                     />
                   </Field>
-                  <Field label={`Pitch ${settings.hostVoice.pitch}`}>
-                    <input
-                      type="range" min={-70} max={70} step={5}
-                      value={settings.hostVoice.pitch}
-                      onChange={(e) => dispatch(setHostVoice({ pitch: Number(e.target.value) }))}
-                      className="accent-accent"
-                    />
-                  </Field>
+                  {pitchSupported ? (
+                    <Field label={`Pitch ${settings.hostVoice.pitch}`}>
+                      <input
+                        type="range" min={-70} max={70} step={5}
+                        value={settings.hostVoice.pitch}
+                        onChange={(e) => dispatch(setHostVoice({ pitch: Number(e.target.value) }))}
+                        className="accent-accent"
+                      />
+                    </Field>
+                  ) : null}
                 </div>
 
                 <Button
@@ -695,16 +736,33 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
                   Test this voice
                 </Button>
 
-                {hostModules.length <= 1 ? (
+                {!renderedVoice ? (
                   <p className="text-xs text-ink-soft">
-                    Only <code>espeak-ng</code> is installed, which is robotic by design. For a much
-                    more natural voice: <code>sudo apt install speech-dispatcher-rhvoice rhvoice-english</code>,
-                    restart the server, then pick it above.
+                    This is <code>espeak-ng</code> through speech-dispatcher, which is robotic by
+                    design. For a clearly better voice run{' '}
+                    <code>sudo apt install libttspico-utils</code> and restart the server — the app
+                    will render audio and play it here instead.
                   </p>
                 ) : null}
               </div>
             ) : null}
           </div>
+
+          {settings.voiceEnabled && renderedVoice ? (
+            <p className="text-xs text-ink-soft">
+              Spoken with {ttsEngines[0].name}, rendered by the local server and played here.
+            </p>
+          ) : null}
+
+          {settings.voiceEnabled && !browserVoiceUsable && serverVoice === false && speech.voicesSettled ? (
+            <div className="rounded border border-tag-inaccuracy/40 bg-panel-soft px-2 py-1.5 text-xs text-tag-inaccuracy">
+              <p>{describeSpeechProblem(speech.problem ?? { kind: 'no-voices' })}</p>
+              <p className="mt-1 text-ink-soft">
+                Or start the game server (<code>npm run dev</code> in <code>backend/</code>) and
+                reload — it can speak through your system with no browser flags.
+              </p>
+            </div>
+          ) : null}
 
           {game ? (
             <div className="flex flex-col gap-2 border-t border-line pt-2">
@@ -757,56 +815,48 @@ export function Analyze({ pgnToLoad }: { pgnToLoad: { pgn: string; label: string
                 ply={currentPly}
                 playedSan={game.sanMoves[currentPly] ?? null}
                 onHoverLine={setHoverArrow}
-                onPreviewLine={(pv) => playOutLine(currentPly, pv)}
+                onPreviewLine={(pv) => playOutLine(currentPly, pv, 'Engine line')}
               />
             </Panel>
 
-            {tacticMoments.length > 0 ? (
+            {allMoments.length > 0 ? (
               <Panel
-                title={`Tactics found (${tacticMoments.length})`}
-                bodyClassName="max-h-[280px] overflow-auto"
+                title={`Learning moments (${allMoments.length})`}
+                bodyClassName="max-h-[300px] overflow-auto"
               >
                 <div className="flex flex-col divide-y divide-line">
-                  {tacticMoments.map(({ ply, tactic: t }) => {
-                    const moveNo = Math.floor(ply / 2) + 1;
-                    const label = ply % 2 === 0 ? `${moveNo}.` : `${moveNo}…`;
-                    return (
-                      <div key={ply} className="flex items-center gap-2 px-3 py-2">
-                        <button
-                          onClick={() => goTo(ply)}
-                          className="flex-1 text-left text-sm hover:text-accent"
-                          title="Jump the board back to this position"
+                  {allMoments.map(({ ply, moment: m }) => (
+                    <button
+                      key={`${ply}-${m.kind}`}
+                      onClick={() => goTo(ply)}
+                      className={`px-3 py-2 text-left hover:bg-panel-soft ${
+                        currentPly === ply ? 'bg-panel-soft' : ''
+                      }`}
+                      title={m.why}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
+                            m.tone === 'critical'
+                              ? 'bg-tag-blunder text-white'
+                              : m.tone === 'warning'
+                                ? 'bg-tag-mistake text-black'
+                                : m.tone === 'good'
+                                  ? 'bg-tag-brilliant text-black'
+                                  : 'bg-accent text-black'
+                          }`}
                         >
-                          <div className="font-semibold">
-                            <span className="font-mono text-ink-soft">{label}</span>{' '}
-                            {t.kind === 'mate'
-                              ? `Mate in ${t.movesToMate}`
-                              : `Wins ${describeGain(t.gainCp)}`}{' '}
-                            <span className="text-xs font-normal text-ink-soft">
-                              ({t.side === 'w' ? 'White' : 'Black'})
-                            </span>
-                          </div>
-                          <div className="truncate font-mono text-xs text-ink-soft">
-                            {t.sans.slice(0, 4).join(' ')}
-                          </div>
-                        </button>
-                        <button
-                          onClick={() => {
-                            goTo(ply);
-                            playOutLine(ply, t.pv);
-                          }}
-                          className="shrink-0 rounded border border-line px-2 py-1 text-[11px] text-ink-soft hover:border-accent hover:text-ink"
-                        >
-                          show moves
-                        </button>
+                          {m.badge}
+                        </span>
+                        <span className="truncate text-sm">{m.title}</span>
                       </div>
-                    );
-                  })}
+                    </button>
+                  ))}
                 </div>
               </Panel>
             ) : null}
 
-            <Panel title="Moves" bodyClassName="max-h-[300px] overflow-auto py-1">
+            <Panel title="Moves" bodyClassName="py-1">
               <MoveList
                 sanMoves={game.sanMoves}
                 annotations={annotations}

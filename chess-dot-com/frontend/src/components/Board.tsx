@@ -4,6 +4,13 @@ import { Chess, type Color, type PieceSymbol, type Square } from 'chess.js';
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const PROMOTION_CHOICES: PieceSymbol[] = ['q', 'r', 'b', 'n'];
 
+const ALERT_TONE: Record<'critical' | 'warning' | 'good' | 'info', string> = {
+  critical: 'bg-tag-blunder text-white',
+  warning: 'bg-tag-mistake text-black',
+  good: 'bg-tag-brilliant text-black',
+  info: 'bg-accent text-black',
+};
+
 export type BoardArrow = {
   from: Square;
   to: Square;
@@ -22,6 +29,10 @@ export type BoardProps = {
   /** Highlighted as the move that was just played. */
   lastMove?: { from: Square; to: Square } | null;
   arrows?: BoardArrow[];
+  /** Tailwind max-width class controlling the board's size. */
+  maxSize?: string;
+  /** Badge drawn over the board to flag a learning moment. */
+  alert?: { label: string; tone: 'critical' | 'warning' | 'good' | 'info' } | null;
 };
 
 /** Grid coordinates for a square, accounting for board orientation. */
@@ -46,6 +57,8 @@ export function Board({
   interactive = false,
   lastMove = null,
   arrows = [],
+  maxSize = 'max-w-[min(78vh,620px)]',
+  alert = null,
 }: BoardProps) {
   const boardRef = useRef<HTMLDivElement | null>(null);
 
@@ -171,7 +184,7 @@ export function Board({
   const draggingPiece = drag ? chess.get(drag.from) : null;
 
   return (
-    <div className="relative w-full max-w-[min(78vh,620px)] select-none">
+    <div className={`relative w-full select-none pt-7 ${maxSize}`}>
       <div
         ref={boardRef}
         className="relative grid aspect-square w-full grid-cols-8 grid-rows-8 overflow-hidden rounded-md shadow-lg"
@@ -317,6 +330,16 @@ export function Board({
           </svg>
         ) : null}
       </div>
+
+      {/* Flags a blunder, mate or tactic on the board itself, where the eye
+          already is, rather than only in a side panel. */}
+      {alert ? (
+        <div
+          className={`pointer-events-none absolute left-1/2 top-0 z-30 -translate-x-1/2 rounded-full px-3 py-0.5 text-xs font-bold uppercase tracking-wide shadow-lg ${ALERT_TONE[alert.tone]}`}
+        >
+          {alert.label}
+        </div>
+      ) : null}
 
       {/* The piece being dragged follows the pointer above everything else. */}
       {drag && draggingPiece ? (

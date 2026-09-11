@@ -6,8 +6,9 @@
  * cannot detect the cause of or fix. The server runs on this same machine, so it
  * can speak through the system's own speech-dispatcher regardless of browser.
  */
-const WS_URL = import.meta.env.VITE_APP_WS_URL ?? 'ws://localhost:8000';
-const HTTP_BASE = WS_URL.replace(/^ws/, 'http');
+import { SERVER_HTTP } from '../config';
+
+const HTTP_BASE = SERVER_HTTP;
 
 export type HostVoice = { name: string; language: string; variant: string };
 
@@ -29,6 +30,7 @@ export const DEFAULT_HOST_VOICE: HostVoiceSettings = {
 };
 
 export async function checkServerSpeech(signal?: AbortSignal): Promise<boolean> {
+  if (!HTTP_BASE) return false;
   try {
     const res = await fetch(`${HTTP_BASE}/speech/status`, { signal });
     if (!res.ok) return false;
@@ -44,6 +46,7 @@ export async function fetchHostVoices(
   module?: string | null,
   signal?: AbortSignal,
 ): Promise<{ modules: string[]; voices: HostVoice[] }> {
+  if (!HTTP_BASE) return { modules: [], voices: [] };
   try {
     const query = module ? `?module=${encodeURIComponent(module)}` : '';
     const res = await fetch(`${HTTP_BASE}/speech/voices${query}`, { signal });
@@ -55,6 +58,7 @@ export async function fetchHostVoices(
 }
 
 export async function serverSpeak(text: string, settings: HostVoiceSettings): Promise<boolean> {
+  if (!HTTP_BASE) return false;
   try {
     const res = await fetch(`${HTTP_BASE}/speech/say`, {
       method: 'POST',
@@ -68,9 +72,97 @@ export async function serverSpeak(text: string, settings: HostVoiceSettings): Pr
 }
 
 export async function serverStopSpeech(): Promise<void> {
+  if (!HTTP_BASE) return;
   try {
     await fetch(`${HTTP_BASE}/speech/stop`, { method: 'POST' });
   } catch {
     /* nothing to stop if the server is gone */
+  }
+}
+
+
+/* ---------- Rendered audio: the reliable path ---------- */
+
+export type TtsEngineInfo = {
+  id: 'piper' | 'pico2wave' | 'espeak-ng';
+  name: string;
+  quality: 'neural' | 'good' | 'basic';
+  note: string;
+};
+
+/** Which WAV-rendering engines the server can use, best first. */
+export async function fetchTtsEngines(signal?: AbortSignal): Promise<TtsEngineInfo[]> {
+  if (!HTTP_BASE) return [];
+  try {
+    const res = await fetch(`${HTTP_BASE}/speech/engines`, { signal });
+    if (!res.ok) return [];
+    const data = (await res.json()) as { engines?: TtsEngineInfo[] };
+    return data.engines ?? [];
+  } catch {
+    return [];
+  }
+}
+
+// One element, reused, so a new line always replaces the previous one.
+let audioEl: HTMLAudioElement | null = null;
+let audioUrl: string | null = null;
+
+function releaseAudio() {
+  if (audioUrl) {
+    URL.revokeObjectURL(audioUrl);
+    audioUrl = null;
+  }
+}
+
+export function stopRenderedSpeech() {
+  if (audioEl) {
+    audioEl.pause();
+    audioEl.currentTime = 0;
+  }
+  releaseAudio();
+}
+
+const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
+
+/**
+ * Have the server render the line and play it here.
+ *
+ * Playing in the page is the whole point: it needs no browser launch flags, no
+ * system voice list, and the tab's own volume control applies.
+ */
+export async function speakRendered(
+  text: string,
+  settings: HostVoiceSettings,
+  engine?: string,
+): Promise<boolean> {
+  if (!HTTP_BASE) return false;
+  try {
+    const res = await fetch(`${HTTP_BASE}/speech/audio`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, engine, rate: settings.rate, pitch: settings.pitch }),
+    });
+    if (!res.ok) return false;
+
+    stopRenderedSpeech();
+
+    const blob = await res.blob();
+    audioUrl = URL.createObjectURL(blob);
+
+    if (!audioEl) {
+      audioEl = new Audio();
+      audioEl.addEventListener('ended', releaseAudio);
+    }
+
+    audioEl.src = audioUrl;
+    audioEl.volume = clamp(settings.volume, 0, 100) / 100;
+    // Engines without a rate control (Pico) get it here instead.
+    audioEl.playbackRate = clamp(1 + settings.rate / 200, 0.5, 2);
+
+    await audioEl.play();
+    return true;
+  } catch {
+    // Autoplay blocked, server down, or no engine — the caller falls back.
+    return false;
   }
 }

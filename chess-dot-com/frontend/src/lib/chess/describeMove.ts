@@ -92,6 +92,11 @@ function backRank(color: Color): string {
   return color === 'w' ? '1' : '8';
 }
 
+/** Facts are rendered as sentences, so they start with a capital. */
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 function joinList(items: string[]): string {
   if (items.length === 0) return '';
   if (items.length === 1) return items[0];
@@ -176,7 +181,7 @@ export function describeMove(fenBefore: string, uci: string): MoveInsight | null
       } else {
         headline = `Captures the ${capturedName} on ${to}.`;
       }
-      facts.push(`${joinList(recapturers.map((sq) => namePieceAt(after, sq)))} can recapture.`);
+      facts.push(capitalize(`${joinList(recapturers.map((sq) => namePieceAt(after, sq)))} can recapture.`));
     }
   }
 
@@ -216,8 +221,10 @@ export function describeMove(fenBefore: string, uci: string): MoveInsight | null
   } else if (seriousTargets.length === 1) {
     const sq = seriousTargets[0];
     const name = PIECE_NAME[after.get(sq)!.type];
-    facts.push(`Attacks the ${name} on ${sq}.`);
-    if (!headline) headline = `Attacks the ${name} on ${sq}.`;
+    const phrase = `Attacks the ${name} on ${sq}.`;
+    // Only a supporting detail if the headline already says something else.
+    if (headline) facts.push(phrase);
+    else headline = phrase;
   }
 
   // --- Did this move rescue a piece that was under fire? ---
@@ -254,7 +261,13 @@ export function describeMove(fenBefore: string, uci: string): MoveInsight | null
     }
   }
 
-  return { uci, san: move.san, headline, facts };
+  // The headline is shown above the facts, so never repeat it in the list.
+  return {
+    uci,
+    san: move.san,
+    headline,
+    facts: facts.filter((f) => f !== headline).map(capitalize),
+  };
 }
 
 /** Convert a UCI principal variation into readable SAN, stopping at the first illegal move. */

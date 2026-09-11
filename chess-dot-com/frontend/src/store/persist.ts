@@ -1,6 +1,7 @@
 import type { Middleware } from '@reduxjs/toolkit';
 import { defaultEngineState, type EngineState } from './engineSlice';
 import { defaultGamesState, type GamesState } from './gamesSlice';
+import { defaultPuzzlesState, type PuzzlesState } from './puzzlesSlice';
 import { DEFAULT_HOST_VOICE } from '../lib/speech/serverSpeech';
 
 const STORAGE_KEY = 'chess-trainer:v1';
@@ -13,6 +14,7 @@ const STORAGE_KEY = 'chess-trainer:v1';
 export type PersistedState = {
   engine?: EngineState;
   games?: GamesState;
+  puzzles?: PuzzlesState;
 };
 
 /**
@@ -48,6 +50,13 @@ export function loadPersistedState(): PersistedState | undefined {
     if (candidate.games && Array.isArray(candidate.games.games)) {
       state.games = { ...defaultGamesState, ...candidate.games };
     }
+    if (candidate.puzzles && typeof candidate.puzzles === 'object') {
+      state.puzzles = {
+        ...defaultPuzzlesState,
+        ...candidate.puzzles,
+        seen: Array.isArray(candidate.puzzles.seen) ? candidate.puzzles.seen : [],
+      };
+    }
 
     return state;
   } catch {
@@ -64,8 +73,8 @@ export const persistMiddleware: Middleware = (store) => (next) => (action) => {
   if (writeTimer) clearTimeout(writeTimer);
   writeTimer = setTimeout(() => {
     try {
-      const { engine, games } = store.getState() as PersistedState;
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ engine, games }));
+      const { engine, games, puzzles } = store.getState() as PersistedState;
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ engine, games, puzzles }));
     } catch {
       // Quota exceeded or storage disabled — losing persistence is survivable.
     }

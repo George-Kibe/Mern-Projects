@@ -31,9 +31,25 @@ export type MoveListProps = {
 
 export function MoveList({ sanMoves, annotations, currentPly, onSelectPly }: MoveListProps) {
   const activeRef = useRef<HTMLButtonElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
+  // Scroll this list directly rather than with scrollIntoView: that walks up to
+  // the window and drags the whole page, which scrolled the board off screen on
+  // every move.
   useEffect(() => {
-    activeRef.current?.scrollIntoView({ block: 'nearest' });
+    const el = activeRef.current;
+    const box = scrollRef.current;
+    if (!el || !box) return;
+
+    const top = el.offsetTop;
+    const bottom = top + el.offsetHeight;
+    const pad = 8;
+
+    if (top < box.scrollTop) {
+      box.scrollTop = Math.max(0, top - pad);
+    } else if (bottom > box.scrollTop + box.clientHeight) {
+      box.scrollTop = bottom - box.clientHeight + pad;
+    }
   }, [currentPly]);
 
   const rows = [];
@@ -67,7 +83,7 @@ export function MoveList({ sanMoves, annotations, currentPly, onSelectPly }: Mov
   };
 
   return (
-    <div className="flex flex-col">
+    <div ref={scrollRef} className="flex max-h-[260px] flex-col overflow-y-auto">
       {rows.map((row) => (
         <div key={row.moveNo} className="flex items-center gap-1 px-2 odd:bg-black/10">
           <span className="w-7 shrink-0 text-right font-mono text-xs text-ink-soft">{row.moveNo}.</span>

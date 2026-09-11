@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Chess, type Color, type Square } from 'chess.js';
 import { Board } from '../components/Board';
-import { Button, Panel } from '../components/ui';
+import { Button, Field, Panel, Select } from '../components/ui';
 import { downloadTextFile, pgnFilename } from '../lib/pgn/exportPgn';
 import { useSocket } from '../hooks/useSocket';
-import { useAppDispatch } from '../store';
+import { HAS_SERVER } from '../lib/config';
+import { useAppDispatch, useAppSelector } from '../store';
+import { Clock } from '../components/Clock';
+import { useChessClock } from '../hooks/useChessClock';
+import { TIME_CONTROLS, getTimeControl } from '../lib/time/controls';
+import { setFriendTimeControlId } from '../store/engineSlice';
 import { saveGame } from '../store/gamesSlice';
 
 const INIT_GAME = 'init_game';
@@ -18,6 +23,8 @@ const START_FEN = new Chess().fen();
 export function PlayFriend({ onAnalyze }: { onAnalyze: (pgn: string, label: string) => void }) {
   const dispatch = useAppDispatch();
   const socket = useSocket();
+  const timeControlId = useAppSelector((st) => st.engine.friendTimeControlId);
+  const control = getTimeControl(timeControlId);
 
   const chessRef = useRef(new Chess());
   const [fen, setFen] = useState(START_FEN);
@@ -27,6 +34,21 @@ export function PlayFriend({ onAnalyze }: { onAnalyze: (pgn: string, label: stri
   const [phase, setPhase] = useState<Phase>('idle');
   const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  const onFlag = useCallback((loser: Color) => {
+    setPhase('over');
+    setNotice(`${loser === 'w' ? 'White' : 'Black'} ran out of time.`);
+  }, []);
+
+  const clock = useChessClock({
+    control,
+    activeColor: phase === 'playing' && sans.length > 0 ? turn : null,
+    onFlag,
+  });
+
+  // Destructured for the same reason as in PlayEngine: the hook's return value
+  // is a new object on every tick.
+  const { press: clockPress, reset: clockReset } = clock;
 
   const sync = useCallback(() => {
     const chess = chessRef.current;
@@ -54,6 +76,7 @@ export function PlayFriend({ onAnalyze }: { onAnalyze: (pgn: string, label: stri
           setPhase('playing');
           setLastMove(null);
           setNotice(null);
+          clockReset();
           sync();
           break;
         }
@@ -68,7 +91,10 @@ export function PlayFriend({ onAnalyze }: { onAnalyze: (pgn: string, label: stri
               to: payload.to,
               promotion: payload.promotion,
             });
-            if (mv) setLastMove({ from: mv.from as Square, to: mv.to as Square });
+            if (mv) {
+              setLastMove({ from: mv.from as Square, to: mv.to as Square });
+              clockPress(mv.color);
+            }
           } catch {
             return;
           }
@@ -89,7 +115,7 @@ export function PlayFriend({ onAnalyze }: { onAnalyze: (pgn: string, label: stri
 
     socket.addEventListener('message', onMessage);
     return () => socket.removeEventListener('message', onMessage);
-  }, [socket, sync]);
+  }, [socket, sync, clockPress, clockReset]);
 
   function findGame() {
     if (!socket) return;
@@ -127,13 +153,32 @@ export function PlayFriend({ onAnalyze }: { onAnalyze: (pgn: string, label: stri
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
       <div className="flex flex-col gap-3">
-        <Board
-          fen={fen}
-          orientation={color}
-          interactive={yourTurn}
-          onMove={onMove}
-          lastMove={lastMove}
-        />
+        <div className="flex w-full max-w-[min(54vh,520px)] flex-col gap-2">
+          {clock.enabled ? (
+            <Clock
+              ms={clock.times[color === 'w' ? 'b' : 'w']}
+              active={phase === 'playing' && turn !== color && sans.length > 0}
+              flagged={clock.flagged === (color === 'w' ? 'b' : 'w')}
+              label="Opponent"
+            />
+          ) : null}
+          <Board
+            fen={fen}
+            orientation={color}
+            interactive={yourTurn}
+            onMove={onMove}
+            lastMove={lastMove}
+            maxSize="max-w-full"
+          />
+          {clock.enabled ? (
+            <Clock
+              ms={clock.times[color]}
+              active={phase === 'playing' && turn === color && sans.length > 0}
+              flagged={clock.flagged === color}
+              label={`You (${color === 'w' ? 'White' : 'Black'})`}
+            />
+          ) : null}
+        </div>
         <div className="min-h-[1.5rem] text-sm text-ink-soft">
           {phase === 'playing' ? (yourTurn ? 'Your move.' : "Opponent's move.") : null}
           {notice ? <span className="text-tag-inaccuracy">{notice}</span> : null}
@@ -148,21 +193,52 @@ export function PlayFriend({ onAnalyze }: { onAnalyze: (pgn: string, label: stri
               aria-hidden
             />
             <span className="text-ink-soft">
-              {socket ? 'Connected to the game server' : 'No connection'}
+              {socket
+                ? 'Connected to the game server'
+                : HAS_SERVER
+                  ? 'No connection'
+                  : 'No server configured'}
             </span>
           </div>
 
-          {!socket ? (
+          {!socket && HAS_SERVER ? (
             <p className="text-xs text-ink-soft">
               Start the server with <code className="text-ink">npm run dev</code> in{' '}
               <code className="text-ink">backend/</code>, then reload this page.
             </p>
           ) : null}
 
+          {!HAS_SERVER ? (
+            <p className="text-xs text-ink-soft">
+              This build has no game server configured, so two-player games are unavailable.
+              Everything else — playing the engine, analysis, openings and puzzles — runs
+              entirely in your browser. To enable this, deploy the server and set{' '}
+              <code className="text-ink">VITE_APP_WS_URL</code>.
+            </p>
+          ) : null}
+
           {phase === 'idle' || phase === 'over' ? (
-            <Button variant="primary" onClick={findGame} disabled={!socket}>
-              Find an opponent
-            </Button>
+            <>
+              <Field label="Time control">
+                <Select
+                  value={timeControlId}
+                  onChange={(v) => dispatch(setFriendTimeControlId(v))}
+                >
+                  {TIME_CONTROLS.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.category === 'Untimed' ? t.label : `${t.label} · ${t.category}`}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <p className="-mt-1 text-xs text-ink-soft">
+                Both players keep their own clock in the browser, so agree the control
+                between you — the server does not enforce it.
+              </p>
+              <Button variant="primary" onClick={findGame} disabled={!socket}>
+                Find an opponent
+              </Button>
+            </>
           ) : null}
 
           {phase === 'waiting' ? (

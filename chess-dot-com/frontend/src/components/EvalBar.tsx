@@ -5,7 +5,7 @@ export function EvalBar({ cp, height }: { cp: number | null; height?: string }) 
   const whiteShare = cpToWinProbability(cp) * 100;
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-1 pt-7">
       <div
         className={`relative w-5 overflow-hidden rounded bg-[#403d39] ${height ?? 'h-[min(78vh,620px)]'}`}
         title={formatCp(cp)}

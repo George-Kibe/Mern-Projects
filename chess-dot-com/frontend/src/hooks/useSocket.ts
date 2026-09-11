@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
-//import { useUser } from '@repo/store/useUser';
-
-const WS_URL = import.meta.env.VITE_APP_WS_URL ?? 'ws://localhost:8000';
+import { WS_URL } from '../lib/config';
 
 export const useSocket = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   // const user = useUser();
 
   useEffect(() => {
-    //if (!user) return;
+    // No server configured (a static deployment, say) — never attempt a connection.
+    if (!WS_URL) return;
+
     const ws = new WebSocket(WS_URL);
-    //const ws = new WebSocket(`${WS_URL}?token=${user.token}`);
 
     ws.onopen = () => {
       setSocket(ws);

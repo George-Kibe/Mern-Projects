@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import engineReducer from './engineSlice';
 import gamesReducer from './gamesSlice';
+import puzzlesReducer from './puzzlesSlice';
 import { loadPersistedState, persistMiddleware } from './persist';
 
 // Combined up front so RootState derives from the reducers rather than from the
@@ -9,6 +10,7 @@ import { loadPersistedState, persistMiddleware } from './persist';
 const rootReducer = combineReducers({
   engine: engineReducer,
   games: gamesReducer,
+  puzzles: puzzlesReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
