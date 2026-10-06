@@ -48,6 +48,8 @@ A secure, full-stack personal finance application built with MongoDB, Express, R
 
 ## Screenshots
 
+Captured at 1920px wide using a demo account seeded with about 14 months of sample expenses.
+
 | Page      | Preview                                                         |
 | --------- | --------------------------------------------------------------- |
 | Sign Up   | ![Signup](./PennyWise-Screenshots/1-Signup-PennyWise.png)       |
@@ -239,7 +241,7 @@ cp .env.example .env
 ```env
 PORT=8000
 NODE_ENV=development
-CLIENT_URL=http://localhost:3000
+CLIENT_URL=http://localhost:3000,http://127.0.0.1:3000
 MONGODBURI=mongodb://localhost:27017/pennywise
 JWT_SECRET=your-secure-jwt-secret-key
 ```
@@ -268,7 +270,7 @@ cp .env.example .env
 ```
 
 ```env
-VITE_API_BASE_URL=http://localhost:8000/api
+VITE_API_BASE_URL=/api
 ```
 
 Start the frontend:

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { TOKEN_KEY } from "@/services/api";
+import { getErrorMessage, TOKEN_KEY } from "@/services/api";
 import { AuthState } from "@/types/auth.types";
 import {
   signup as signupService,
@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
         isAuthenticated: false,
       });
@@ -92,7 +92,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
         isAuthenticated: false,
       });
@@ -115,7 +115,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
         isAuthenticated: false,
       });
@@ -142,7 +142,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
         isAuthenticated: false,
       });
@@ -167,7 +167,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
         isAuthenticated: false,
       });
@@ -188,7 +188,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
         isAuthenticated: false,
       });
@@ -211,7 +211,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
         isAuthenticated: false,
       });
@@ -236,7 +236,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
         isAuthenticated: false,
       });

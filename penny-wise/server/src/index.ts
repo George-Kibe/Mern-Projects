@@ -15,8 +15,16 @@ const PORT = process.env.PORT || 8000;
 
 connectDB();
 
+// CLIENT_URL may be a comma-separated list of allowed origins
+const allowedOrigins = (
+  process.env.CLIENT_URL || "http://localhost:3000,http://127.0.0.1:3000"
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 const corsOptions = {
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: allowedOrigins,
   credentials: true,
 };
 

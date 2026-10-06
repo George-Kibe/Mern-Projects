@@ -1,5 +1,6 @@
 import { AnalyticsState, MonthlyTotal } from "@/types/analytics.types";
 import { create } from "zustand";
+import { getErrorMessage } from "@/services/api";
 import {
   getDashboardStats as getDashboardStatsService,
   getYearlyStats as getYearlyStatsService,
@@ -65,7 +66,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
       });
     }
@@ -87,7 +88,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
       });
     }
@@ -109,7 +110,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
       });
     }
@@ -133,7 +134,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
       });
     }
@@ -159,7 +160,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
       });
     }
@@ -185,7 +186,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
       });
     }
@@ -212,7 +213,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
       });
     }
@@ -239,7 +240,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
       });
     }
@@ -270,7 +271,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
-        error: err.response?.data?.error,
+        error: getErrorMessage(err),
         isLoading: false,
       });
     }

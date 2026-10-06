@@ -52,7 +52,7 @@ cp .env.example .env
 ```env
 PORT=8000
 NODE_ENV=development
-CLIENT_URL=http://localhost:3000
+CLIENT_URL=http://localhost:3000,http://127.0.0.1:3000
 MONGODBURI=mongodb://localhost:27017/pennywise
 JWT_SECRET=your-secure-jwt-secret-key
 ```
