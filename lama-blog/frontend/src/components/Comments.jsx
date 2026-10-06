@@ -25,10 +25,6 @@ const Comments = ({ postId }) => {
   const mutation = useMutation({
     mutationFn: async (newComment) => {
       const token = await getToken();
-      if (!user) {
-        toast.error("You should login first to comment!");
-        return;
-      }
       return axios.post(
         `${import.meta.env.VITE_API_URL}/comments/${postId}`,
         newComment,
@@ -43,19 +39,21 @@ const Comments = ({ postId }) => {
       queryClient.invalidateQueries({ queryKey: ["comments", postId] });
     },
     onError: (error) => {
-      toast.error(error.response.data);
+      toast.error(error.response?.data || "Could not add comment!");
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("You should login first to comment!");
+      return;
+    }
     const formData = new FormData(e.target);
-
-    const data = {
-      description: formData.get("description"),
-    };
-
-    mutation.mutate(data);
+    const description = formData.get("description")?.trim();
+    if (!description) return;
+    mutation.mutate({ description });
+    e.target.reset();
   };
 
   return (

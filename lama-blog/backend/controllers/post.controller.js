@@ -1,16 +1,28 @@
-import ImageKit from "imagekit";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
+import Comment from "../models/comment.model.js";
+import getUser, { getRole } from "../lib/getUser.js";
+import {
+  deleteContentMedia,
+  deleteImage,
+  getUploadSignature,
+} from "../lib/cloudinary.js";
+
+const toSlug = (title) =>
+  title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s-]+/g, "-")
+    .replace(/^-|-$/g, "");
 
 export const getPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 2;
+  const limit = Math.min(parseInt(req.query.limit) || 2, 50);
 
   const query = {};
 
-  console.log(req.query);
-
-  const category = req.query.category;
+  const category = req.query.cat || req.query.category;
   const author = req.query.author;
   const searchQuery = req.query.search;
   const sortQuery = req.query.sort;
@@ -28,7 +40,7 @@ export const getPosts = async (req, res) => {
     const user = await User.findOne({ username: author }).select("_id");
 
     if (!user) {
-      return res.status(404).json("No post found!");
+      return res.status(200).json({ posts: [], hasMore: false });
     }
 
     query.user = user._id;
@@ -68,7 +80,7 @@ export const getPosts = async (req, res) => {
     .limit(limit)
     .skip((page - 1) * limit);
 
-  const totalPosts = await Post.countDocuments();
+  const totalPosts = await Post.countDocuments(query);
   const hasMore = page * limit < totalPosts;
 
   res.status(200).json({ posts, hasMore });
@@ -77,40 +89,49 @@ export const getPosts = async (req, res) => {
 export const getPost = async (req, res) => {
   const post = await Post.findOne({ slug: req.params.slug }).populate(
     "user",
-    "username img email"
+    "username img clerkUserId"
   );
+
+  if (!post) {
+    return res.status(404).json("Post not found!");
+  }
+
   res.status(200).json(post);
 };
 
 export const createPost = async (req, res) => {
   const clerkUserId = req.auth().userId;
 
-  // console.log(req.headers);
-  console.log(req.auth());
   if (!clerkUserId) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const user = await User.findOne({ clerkUserId });
+  const { title, img, description, category, content } = req.body;
 
-  if (!user) {
-    return res.status(404).json("User not found!");
+  if (!title?.trim() || !content?.trim()) {
+    return res.status(400).json("Title and content are required!");
   }
 
-  let slug = req.body.title.replace(/ /g, "-").toLowerCase();
+  const user = await getUser(clerkUserId);
 
-  let existingPostSlug = await Post.findOne({ slug });
-
+  const baseSlug = toSlug(title) || "post";
+  let slug = baseSlug;
   let counter = 2;
 
-  while (existingPostSlug) {
-    slug = `${slug}-${counter}`;
-    existingPostSlug = await Post.findOne({ slug });
+  while (await Post.exists({ slug })) {
+    slug = `${baseSlug}-${counter}`;
     counter++;
   }
 
-  const newPost = new Post({ user: user._id, slug, ...req.body });
-  // const newPost = new Post({ slug, ...req.body });
+  const newPost = new Post({
+    user: user._id,
+    slug,
+    title,
+    img,
+    description,
+    category,
+    content,
+  });
 
   const post = await newPost.save();
   res.status(200).json(post);
@@ -123,23 +144,24 @@ export const deletePost = async (req, res) => {
     return res.status(401).json("Not authenticated!");
   }
 
-  const role = req.auth().sessionClaims?.metadata?.role || "user";
+  const role = await getRole(req.auth());
 
-  if (role === "admin") {
-    await Post.findByIdAndDelete(req.params.id);
-    return res.status(200).json("Post has been deleted");
+  const filter = { _id: req.params.id };
+
+  if (role !== "admin") {
+    const user = await getUser(clerkUserId);
+    filter.user = user._id;
   }
 
-  const user = await User.findOne({ clerkUserId });
-
-  const deletedPost = await Post.findOneAndDelete({
-    _id: req.params.id,
-    user: user._id,
-  });
+  const deletedPost = await Post.findOneAndDelete(filter);
 
   if (!deletedPost) {
     return res.status(403).json("You can delete only your posts!");
   }
+
+  await Comment.deleteMany({ post: deletedPost._id });
+  await deleteImage(deletedPost.img);
+  await deleteContentMedia(deletedPost.content);
 
   res.status(200).json("Post has been deleted");
 };
@@ -152,7 +174,7 @@ export const featurePost = async (req, res) => {
     return res.status(401).json("Not authenticated!");
   }
 
-  const role = req.auth().sessionClaims?.metadata?.role || "user";
+  const role = await getRole(req.auth());
 
   if (role !== "admin") {
     return res.status(403).json("You cannot feature posts!");
@@ -171,20 +193,16 @@ export const featurePost = async (req, res) => {
     {
       isFeatured: !isFeatured,
     },
-    { new: true }
+    { returnDocument: "after" }
   );
 
   res.status(200).json(updatedPost);
 };
 
-const imagekit = new ImageKit({
-  urlEndpoint: process.env.IK_URL_ENDPOINT,
-  publicKey: process.env.IK_PUBLIC_KEY,
-  privateKey: process.env.IK_PRIVATE_KEY,
-});
-
 export const uploadAuth = async (req, res) => {
-  const result = imagekit.getAuthenticationParameters();
-  console.log("Authentication Parameters: ", result);
-  res.send(result);
+  if (!req.auth().userId) {
+    return res.status(401).json("Not authenticated!");
+  }
+
+  res.status(200).json(getUploadSignature());
 };

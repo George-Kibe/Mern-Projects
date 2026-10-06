@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import Image from "./Image";
 import { format } from "timeago.js";
+import { categoryLabel } from "../lib/categories";
 
 const PostListItem = ({ post }) => {
 
@@ -9,7 +10,7 @@ const PostListItem = ({ post }) => {
       {/* image */}
       {post.img && (
         <div className="md:hidden xl:block xl:w-1/3">
-          <Image src={post.img} className="rounded-2xl object-cover" w="735" />
+          <Image src={post.img} alt={post.title} className="rounded-2xl object-cover w-full aspect-video" w="735" h="413" />
         </div>
       )}
       {/* details */}
@@ -21,7 +22,7 @@ const PostListItem = ({ post }) => {
           <span>Written by</span>
           <Link className="text-blue-800" to={`/posts?author=${post.user?.username || " "}`}>{post.user?.username || ""}</Link>
           <span>on</span>
-          <Link className="text-blue-800">{post.category}</Link>
+          <Link className="text-blue-800" to={`/posts?cat=${post.category}`}>{categoryLabel(post.category)}</Link>
           <span>{format(post.createdAt)}</span>
         </div>
         <p>{post.description}</p>

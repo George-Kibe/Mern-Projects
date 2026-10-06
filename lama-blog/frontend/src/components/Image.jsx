@@ -1,22 +1,53 @@
-import { IKImage } from "imagekitio-react";
+import { cloudinaryUrl, isCloudinaryUrl } from "../lib/cloudinary";
 
-const Image = ({ src, className, w, h, alt }) => {
+const Image = ({ src, className, w, h, alt = "" }) => {
+  if (!src) return null;
+
+  // Local assets live in /public; other absolute URLs (e.g. Clerk avatars) pass through.
+  if (!isCloudinaryUrl(src)) {
+    let url = /^https?:\/\//.test(src) ? src : `/${src}`;
+    // Clerk avatars accept a width param; avoid downloading 1000px for a 48px avatar.
+    if (url.startsWith("https://img.clerk.com/") && w) {
+      url += `${url.includes("?") ? "&" : "?"}width=${Number(w) * 2}`;
+    }
+    return (
+      <img
+        src={url}
+        className={className}
+        loading="lazy"
+        alt={alt}
+        width={w}
+        height={h}
+      />
+    );
+  }
+
+  const width = w ? Number(w) : undefined;
+  const height = h ? Number(h) : undefined;
+  const dimensions = { w: width, h: height };
+  const retina = { w: width && width * 2, h: height && height * 2 };
+  // Tiny blurred version shown while the real image loads.
+  const placeholder = cloudinaryUrl(src, {
+    w: 40,
+    h: width && height ? Math.round((40 * height) / width) : undefined,
+    quality: 10,
+    blur: 1000,
+  });
+
   return (
-    <IKImage
-      urlEndpoint={import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}
-      path={src}
+    <img
+      src={cloudinaryUrl(src, dimensions)}
+      srcSet={`${cloudinaryUrl(src, dimensions)} 1x, ${cloudinaryUrl(src, retina)} 2x`}
       className={className}
       loading="lazy"
-      lqip={{ active: true, quality: 20 }}
       alt={alt}
-      width={w}
-      height={h}
-      transformation={[
-        {
-          width: w,
-          height: h,
-        },
-      ]}
+      width={width}
+      height={height}
+      style={{
+        backgroundImage: `url(${placeholder})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     />
   );
 };

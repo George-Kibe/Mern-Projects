@@ -29,7 +29,7 @@ const Comment = ({ comment, postId }) => {
       toast.success("Comment deleted successfully");
     },
     onError: (error) => {
-      toast.error(error.response.data);
+      toast.error(error.response?.data || "Could not delete comment!");
     },
   });
 
@@ -48,7 +48,7 @@ const Comment = ({ comment, postId }) => {
           {format(comment.createdAt)}
         </span>
         {user &&
-          (comment.user.email === user?.emailAddresses[0].emailAddress || role === "admin") && (
+          (comment.user.clerkUserId === user.id || role === "admin") && (
             <span
               className="text-xs text-red-300 hover:text-red-500 cursor-pointer"
               onClick={() => mutation.mutate()}

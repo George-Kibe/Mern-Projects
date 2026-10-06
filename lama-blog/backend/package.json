@@ -4,8 +4,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --env-file .env --watch index.js"
+    "dev": "node --env-file .env --watch index.js",
+    "start": "node --env-file .env index.js",
+    "seed": "node --env-file .env seed/seed.js"
   },
   "keywords": [],
   "author": "",
@@ -14,9 +15,9 @@
   "dependencies": {
     "@clerk/express": "^2.1.76",
     "body-parser": "^2.3.0",
+    "cloudinary": "^2.11.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "imagekit": "^6.0.0",
     "mongoose": "^9.11.0",
     "svix": "^2.6.2"
   }

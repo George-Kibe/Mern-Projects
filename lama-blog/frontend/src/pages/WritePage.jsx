@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 import 'react-quill-new/dist/quill.snow.css';
 import { useNavigate } from "react-router";
 import Upload from '../components/Upload';
+import Image from '../components/Image';
+import { CATEGORIES } from '../lib/categories';
 
 const WritePage = () => {
   const { isLoaded, isSignedIn } = useUser();
@@ -15,11 +17,17 @@ const WritePage = () => {
   const [progress, setProgress] = useState(0);
 
   const addImage = (img) =>
-    setValue((prev) => prev + `<p><image src="${img.url}"/></p>`);
+    setValue(
+      (prev) =>
+        prev +
+        `<p><img src="${img.secure_url.replace("/upload/", "/upload/f_auto,q_auto,w_1200,c_limit/")}" alt=""/></p>`
+    );
 
   const addVideo = (video) =>
     setValue(
-      (prev) => prev + `<p><iframe class="ql-video" src="${video.url}"/></p>`
+      (prev) =>
+        prev +
+        `<p><iframe class="ql-video" src="${video.secure_url.replace("/upload/", "/upload/q_auto/")}"></iframe></p>`
     );
 
 
@@ -41,8 +49,7 @@ const WritePage = () => {
       navigate(`/posts/${res.data.slug}`);
     },
     onError: (error) => {
-      toast.error("something went Wrong!");
-      console.log("Creating a blog error: ", error.message);
+      toast.error(error.response?.data || "Something went wrong!");
     },
   });
 
@@ -71,36 +78,38 @@ const WritePage = () => {
     }
   
     const data = {
-      img: cover.filePath || "",
+      img: cover.secure_url || "",
       title: formData.get("title"),
       category: formData.get("category"),
       description: formData.get("description"),
       content: value,
     };
 
-    console.log("Post Data: ", data);
-
     mutation.mutate(data);
   };
 
-  if (!isLoaded) {
-    return <div className="">Loading...</div>;
-  }
-
-  if (isLoaded && !isSignedIn) {
-    return <div className="">You should login!</div>;
-  }
-  
+  const isUploading = 0 < progress && progress < 100;
 
   return (
     <div className="h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] flex flex-col gap-6">
       <h1 className="text-xl font-light">Create a New Post</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-6 flex-1 mb-6">
-        <Upload type="image" setProgress={setProgress} setData={setCover}>
-          <button type='button' className="w-max p-2 shadow-md rounded-xl text-sm text-gray-500 bg-white">
-            Add a cover image
-          </button>
-        </Upload>
+        <div className="flex items-center gap-4">
+          <Upload type="image" setProgress={setProgress} setData={setCover}>
+            <button type='button' className="w-max p-2 shadow-md rounded-xl text-sm text-gray-500 bg-white">
+              {cover ? "Change cover image" : "Add a cover image"}
+            </button>
+          </Upload>
+          {cover && (
+            <Image
+              src={cover.secure_url}
+              w="160"
+              h="90"
+              alt="Cover preview"
+              className="rounded-xl object-cover"
+            />
+          )}
+        </div>
         <input
           className="text-4xl flex flex-col flex-wrap font-semibold bg-transparent outline-none"
           type="text"
@@ -116,12 +125,11 @@ const WritePage = () => {
             id=""
             className="p-2 rounded-xl bg-white shadow-md"
           >
-            <option value="general">General</option>
-            <option value="web-design">Web Design</option>
-            <option value="development">Development</option>
-            <option value="databases">Databases</option>
-            <option value="seo">Search Engines</option>
-            <option value="marketing">Marketing</option>
+            {CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
           </select>
         </div>
         <textarea
@@ -143,17 +151,18 @@ const WritePage = () => {
             className="flex-1 rounded-xl bg-white shadow-md"
             value={value}
             onChange={setValue}
-            readOnly={0 < progress && progress < 100}
+            readOnly={isUploading}
           />
         </div>
         <button
-          disabled={mutation.isPending || (0 < progress && progress < 100)}
+          disabled={mutation.isPending || isUploading}
           className="bg-blue-800 text-white font-medium rounded-xl mt-4 p-2 w-36 disabled:bg-blue-400 disabled:cursor-not-allowed"
         >
           {mutation.isPending ? "Loading..." : "Save"}
         </button>
-        {"Progress:" + progress}
-        {mutation.isError && <span>{mutation.error.message}</span>}
+        {isUploading && (
+          <span className="text-sm text-gray-500">Uploading: {progress}%</span>
+        )}
       </form>
     </div>
 

@@ -7,6 +7,8 @@ import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'timeago.js'
 import PostMenuActions from '../components/PostMenuActions'
+import DOMPurify from 'dompurify'
+import { CATEGORIES, categoryLabel } from '../lib/categories'
 
 const fetchPost = async (slug) => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/posts/${slug}`);
@@ -22,7 +24,8 @@ const SinglePostPage = () => {
   });
 
   if (isPending) return "loading...";
-  if (error) return "Something went wrong!" + error.message;
+  if (error?.response?.status === 404) return "Post not found!";
+  if (error) return "Something went wrong! " + error.message;
   if (!data) return "Post not found!";
   return (
     <div className="flex flex-col gap-8">
@@ -34,28 +37,35 @@ const SinglePostPage = () => {
           </h1>
          <div className="flex items-center gap-2 text-gray-400 text-sm">
             <span>Written by</span>
-            <Link className="text-blue-800">{data.user?.username || ""}</Link>
+            <Link className="text-blue-800" to={`/posts?author=${data.user?.username || ""}`}>{data.user?.username || ""}</Link>
             <span>on</span>
-            <Link className="text-blue-800">{data.category}</Link>
+            <Link className="text-blue-800" to={`/posts?cat=${data.category}`}>{categoryLabel(data.category)}</Link>
             <span>{format(data.createdAt)}</span>
           </div>
           <p className="text-gray-500 font-medium">{data.description}</p>
         </div>
         <div className="hidden lg:block w-2/5">
-            <Image src={"postImg.jpeg"} w="600" className="rounded-2xl" />
-          </div>
-        {data.img && (
-          <div className="hidden lg:block w-2/5">
-            <Image src={data.img} w="600" className="rounded-2xl" />
-          </div>
-        )}
+          <Image
+            src={data.img || "postImg.jpeg"}
+            w="600"
+            h="400"
+            alt={data.title}
+            className="rounded-2xl object-cover"
+          />
+        </div>
       </div>
       {/* content */}
       <div className="flex flex-col md:flex-row gap-12 justify-between">
         {/* text */}
         <div className="lg:text-lg flex flex-col gap-6 text-justify">
           <div
-            dangerouslySetInnerHTML={{ __html: data.content }}
+            className="post-content"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(data.content, {
+                ADD_TAGS: ["iframe"],
+                ADD_ATTR: ["allowfullscreen", "frameborder"],
+              }),
+            }}
           />
           
         </div>
@@ -79,7 +89,7 @@ const SinglePostPage = () => {
                 />
               )}
               { data.user?.username && (
-                <Link className="text-blue-800">{data.user.username}</Link>
+                <Link className="text-blue-800" to={`/posts?author=${data.user.username}`}>{data.user.username}</Link>
               )}
               
             </div>
@@ -98,45 +108,12 @@ const SinglePostPage = () => {
           <PostMenuActions post={data}/>
           <h1 className="mt-8 mb-4 text-sm font-medium">Categories</h1>
           <div className="flex flex-col gap-2 text-sm">
-            <Link className="underline">All</Link>
-            <Link 
-              to={{
-                pathname: "/posts",
-                search: "?cat=web-design",
-              }}
-              className="underline">
-              Web Design
-            </Link>
-            <Link 
-              to={{
-                pathname: "/posts",
-                search: "?cat=development",
-              }}
-              className="underline">
-              Development
-            </Link>
-            <Link 
-              to={{
-                pathname: "/posts",
-                search: "?cat=databases",
-              }}
-              className="underline">
-              Databases
-            </Link>
-            <Link 
-              to={{
-                pathname: "/posts",
-                search: "?cat=seo",
-              }} className="underline"  >
-              Search Engines
-            </Link>
-            <Link 
-              to={{
-                pathname: "/posts",
-                search: "?cat=marketing",
-              }} className="underline">
-              Marketing
-            </Link>
+            <Link to="/posts" className="underline">All</Link>
+            {CATEGORIES.map((c) => (
+              <Link key={c.value} to={`/posts?cat=${c.value}`} className="underline">
+                {c.label}
+              </Link>
+            ))}
           </div>
           <h1 className="mt-8 mb-4 text-sm font-medium">Search</h1>
           <Search />

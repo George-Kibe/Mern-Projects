@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
 import Comment from "../models/comment.model.js";
 import { Webhook } from "svix";
+import { uniqueUsername } from "../lib/getUser.js";
 
 export const clerkWebHook = async (req, res) => {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -29,16 +30,26 @@ export const clerkWebHook = async (req, res) => {
     });
   }
 
-  console.log("Webhook Event: ", evt.data);
 
   if (evt.type === "user.created") {
-    const newUser = new User({
-      clerkUserId: evt.data.id,
-      username: evt.data.username || evt.data.email_addresses[0].email_address,
-      email: evt.data.email_addresses[0].email_address,
-      img: evt.data.profile_img_url,
-    });
-    await newUser.save();
+    // Upsert: the user may already exist if getUser() created them first.
+    const email = evt.data.email_addresses[0]?.email_address;
+    await User.findOneAndUpdate(
+      { clerkUserId: evt.data.id },
+      {
+        $setOnInsert: {
+          username: await uniqueUsername({
+            username: evt.data.username,
+            firstName: evt.data.first_name,
+            lastName: evt.data.last_name,
+            email,
+          }),
+          email,
+          img: evt.data.image_url,
+        },
+      },
+      { upsert: true }
+    );
   }
 
   if (evt.type === "user.deleted") {

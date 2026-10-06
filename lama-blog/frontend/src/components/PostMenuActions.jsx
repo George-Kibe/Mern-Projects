@@ -5,9 +5,10 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 const PostMenuActions = ({ post }) => {
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
   const { getToken } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     isPending,
@@ -15,6 +16,7 @@ const PostMenuActions = ({ post }) => {
     data: savedPosts,
   } = useQuery({
     queryKey: ["savedPosts"],
+    enabled: !!isSignedIn,
     queryFn: async () => {
       const token = await getToken();
       return axios.get(`${import.meta.env.VITE_API_URL}/users/saved`, {
@@ -38,6 +40,8 @@ const PostMenuActions = ({ post }) => {
       });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["featuredPosts"] });
       toast.success("Post deleted successfully!");
       navigate("/");
     },
@@ -45,8 +49,6 @@ const PostMenuActions = ({ post }) => {
       toast.error(error.response.data);
     },
   });
-
-  const queryClient = useQueryClient();
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -88,6 +90,7 @@ const PostMenuActions = ({ post }) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post", post.slug] });
+      queryClient.invalidateQueries({ queryKey: ["featuredPosts"] });
     },
     onError: (error) => {
       toast.error(error.response.data);
@@ -109,13 +112,12 @@ const PostMenuActions = ({ post }) => {
     saveMutation.mutate();
   };
 
-  console.log("Post Email", post.user.email);
-  console.log("User Email", user?.emailAddresses[0].emailAddress);
+
 
   return (
     <div className="">
       <h1 className="mt-8 mb-4 text-sm font-medium">Actions</h1>
-      {isPending ? (
+      {isSignedIn && isPending ? (
         "Loading..."
       ) : error ? (
         "Saved post fetching failed!"
@@ -183,7 +185,7 @@ const PostMenuActions = ({ post }) => {
           )}
         </div>
       )}
-      {user && (post.user.email === user?.emailAddresses[0].emailAddress || isAdmin) && (
+      {user && (post.user?.clerkUserId === user.id || isAdmin) && (
         <div
           className="flex items-center gap-2 py-2 text-sm cursor-pointer"
           onClick={handleDelete}

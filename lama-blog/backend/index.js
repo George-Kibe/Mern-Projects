@@ -61,13 +61,18 @@ app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 
 app.use((error, req, res, next) => {
+  // Malformed ObjectIds in params (e.g. /posts/abc) are client errors.
+  if (error.name === "CastError") {
+    return res.status(400).json({ message: "Invalid id", status: 400 });
+  }
+
   console.log("Error on server ", error);
   res.status(error.status || 500);
 
   res.json({
     message: error.message || "Something went wrong!",
     status: error.status,
-    stack: error.stack,
+    stack: process.env.NODE_ENV === "production" ? undefined : error.stack,
   });
 });
 
