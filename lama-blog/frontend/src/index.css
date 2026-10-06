@@ -21,6 +21,9 @@
   --color-accent-soft: #dce3fa;
   --color-danger: #b42318;
   --color-danger-soft: #fdecea;
+  /* Blue used as text (links, codes, active labels); fills use --color-accent. */
+  --color-link: #1e40af;
+  --color-code-bg: #14163a;
 
   --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", monospace;
@@ -30,6 +33,34 @@
   --shadow-pop: 0 8px 24px -8px rgb(20 22 58 / 0.25);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/*
+  Dark theme: same system, night drawer. The lavender ground becomes the ink,
+  the accent fill lifts so white labels keep contrast, and blue text brightens
+  to stay readable on the dark ground. Unlayered so it beats @theme's :root.
+*/
+[data-theme="dark"] {
+  --color-ground: #0f1024;
+  --color-ground-deep: #1a1c3a;
+  --color-card: #1f2245;
+  --color-tint: #282c55;
+  --color-ink: #e6e6ff;
+  --color-ink-soft: #bcc0ea;
+  --color-ink-faint: #9599cc;
+  --color-line: #33386a;
+  --color-line-soft: #2a2e5a;
+  --color-accent: #3554d1;
+  --color-accent-hover: #4565e0;
+  --color-accent-soft: #263266;
+  --color-link: #a3b4ff;
+  --color-danger: #ff8a80;
+  --color-danger-soft: #3d1c27;
+  --color-code-bg: #0a0b1c;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.35), 0 12px 32px -16px rgb(0 0 0 / 0.6);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.4), 0 20px 40px -18px rgb(53 84 209 / 0.45);
+  --shadow-pop: 0 8px 24px -8px rgb(0 0 0 / 0.6);
 }
 
 @layer base {
@@ -137,12 +168,13 @@
     color: var(--color-ink);
     box-shadow: inset 0 0 0 1px var(--color-line);
   }
-  .btn-secondary:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--color-accent); color: var(--color-accent); }
+  .btn-secondary:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--color-accent); color: var(--color-link); }
 
   .btn-ghost { color: var(--color-ink-soft); }
   .btn-ghost:hover:not(:disabled) { background: var(--color-ground-deep); color: var(--color-ink); }
 
-  .btn-danger { background: var(--color-danger); color: #ffffff; }
+  /* Fixed red in both themes so the white label keeps its contrast. */
+  .btn-danger { background: #b42318; color: #ffffff; }
   .btn-danger:hover:not(:disabled) { background: #912018; }
 
   .field {
@@ -174,6 +206,9 @@
     background-repeat: no-repeat;
     background-position: right 16px center;
     background-size: 14px;
+  }
+  [data-theme="dark"] .field-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%23bcc0ea' d='M213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E");
   }
 
   /* Saved posts carry a folded corner flag. */
@@ -245,7 +280,7 @@
 .post-content ol { list-style: decimal; padding-left: 24px; }
 .post-content li + li { margin-top: 8px; }
 .post-content li::marker { color: var(--color-accent); }
-.post-content a { color: var(--color-accent); text-decoration: underline; }
+.post-content a { color: var(--color-link); text-decoration: underline; }
 .post-content strong { font-weight: 650; }
 .post-content blockquote {
   padding: 16px 24px;
@@ -263,7 +298,7 @@
   border-radius: 6px;
 }
 .post-content pre {
-  background: var(--color-ink);
+  background: var(--color-code-bg);
   color: #e6e6ff;
   padding: 16px 24px;
   border-radius: 12px;
@@ -282,5 +317,14 @@
 .ql-editor.ql-blank::before { color: var(--color-ink-faint) !important; font-style: normal !important; left: 24px !important; }
 
 /* Toasts in the system's colors */
-.Toastify__toast { font-family: var(--font-sans); border-radius: 12px !important; color: var(--color-ink) !important; box-shadow: var(--shadow-pop) !important; }
+.Toastify__toast { font-family: var(--font-sans); border-radius: 12px !important; background: var(--color-card) !important; color: var(--color-ink) !important; box-shadow: var(--shadow-pop) !important; }
+.Toastify__close-button { color: var(--color-ink-soft) !important; }
+
+/* Quill's snow theme hard-codes grey icons; take them from the palette. */
+.ql-snow .ql-stroke { stroke: var(--color-ink-soft) !important; }
+.ql-snow .ql-fill { fill: var(--color-ink-soft) !important; }
+.ql-snow .ql-picker { color: var(--color-ink-soft) !important; }
+.ql-snow .ql-picker-options { background: var(--color-card) !important; }
+.ql-snow button:hover .ql-stroke, .ql-snow .ql-active .ql-stroke { stroke: var(--color-link) !important; }
+.ql-snow button:hover .ql-fill, .ql-snow .ql-active .ql-fill { fill: var(--color-link) !important; }
 .Toastify__progress-bar--success, .Toastify__progress-bar--info { background: var(--color-accent) !important; }

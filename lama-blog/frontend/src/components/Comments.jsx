@@ -15,7 +15,7 @@ const Avatar = ({ user }) =>
   user?.img ? (
     <Image src={user.img} w="40" h="40" className="size-10 shrink-0 rounded-full object-cover" />
   ) : (
-    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-soft font-semibold text-accent uppercase" aria-hidden>
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-soft font-semibold text-link uppercase" aria-hidden>
       {user?.username?.[0] ?? "?"}
     </span>
   );
@@ -126,7 +126,7 @@ const Comments = ({ postId }) => {
         </form>
       ) : (
         <p className="rounded-xl bg-card px-6 py-4 text-ink-soft shadow-card">
-          <Link to="/login" className="font-medium text-accent underline">Sign in</Link> to join the conversation.
+          <Link to="/login" className="font-medium text-link underline">Sign in</Link> to join the conversation.
         </p>
       )}
 

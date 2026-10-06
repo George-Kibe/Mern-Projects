@@ -15,7 +15,7 @@ const StateMessage = ({ kind = "empty", title, body, action }) => {
       role={kind === "empty" ? "status" : "alert"}
       className="flex flex-col items-center gap-4 rounded-xl border border-dashed border-line px-6 py-16 text-center"
     >
-      <Icon size={32} className={kind === "empty" ? "text-ink-faint" : "text-accent"} aria-hidden />
+      <Icon size={32} className={kind === "empty" ? "text-ink-faint" : "text-link"} aria-hidden />
       <div className="flex max-w-[48ch] flex-col gap-2">
         <h2 className="text-lg font-semibold">{title}</h2>
         {body && <p className="text-ink-soft">{body}</p>}

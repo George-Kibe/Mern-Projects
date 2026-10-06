@@ -34,7 +34,7 @@ const Related = ({ post }) => {
         <h2 id="related-heading" className="text-2xl font-semibold">
           More in {categoryLabel(post.category)}
         </h2>
-        <Link to={`/posts?cat=${post.category}`} className="shrink-0 font-medium text-accent hover:underline">
+        <Link to={`/posts?cat=${post.category}`} className="shrink-0 font-medium text-link hover:underline">
           See all
         </Link>
       </div>
@@ -93,10 +93,10 @@ const SinglePostPage = () => {
       <div className="container-page flex flex-col gap-8">
         <nav aria-label="Breadcrumb">
           <ol className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
-            <li><Link to="/posts" className="hover:text-accent hover:underline">Browse</Link></li>
+            <li><Link to="/posts" className="hover:text-link hover:underline">Browse</Link></li>
             <li aria-hidden><CaretRight size={12} /></li>
             <li>
-              <Link to={`/posts?cat=${post.category}`} className="hover:text-accent hover:underline">
+              <Link to={`/posts?cat=${post.category}`} className="hover:text-link hover:underline">
                 {categoryLabel(post.category)}
               </Link>
             </li>
@@ -112,11 +112,11 @@ const SinglePostPage = () => {
           )}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-soft">
             {author && (
-              <Link to={`/posts?author=${encodeURIComponent(author)}`} className="flex items-center gap-2 font-medium text-ink hover:text-accent">
+              <Link to={`/posts?author=${encodeURIComponent(author)}`} className="flex items-center gap-2 font-medium text-ink hover:text-link">
                 {post.user.img ? (
                   <Image src={post.user.img} w="32" h="32" className="size-8 rounded-full object-cover" />
                 ) : (
-                  <span className="flex size-8 items-center justify-center rounded-full bg-accent-soft font-semibold text-accent uppercase" aria-hidden>
+                  <span className="flex size-8 items-center justify-center rounded-full bg-accent-soft font-semibold text-link uppercase" aria-hidden>
                     {author[0]}
                   </span>
                 )}
@@ -124,7 +124,7 @@ const SinglePostPage = () => {
               </Link>
             )}
             <span className="call-label">
-              <span className="text-accent">{categoryCode(post.category)}</span> /{" "}
+              <span className="text-link">{categoryCode(post.category)}</span> /{" "}
               <time dateTime={post.createdAt}>{filingDate(post.createdAt)}</time>
             </span>
             <span>{readingTime(minutesFromHtml(post.content))}</span>
@@ -133,7 +133,7 @@ const SinglePostPage = () => {
               {formatCount(post.visit)} reads
             </span>
             {post.isFeatured && (
-              <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">Featured</span>
+              <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-link">Featured</span>
             )}
           </div>
         </header>
@@ -163,7 +163,7 @@ const SinglePostPage = () => {
             <PostActions post={post} />
             <div className="flex flex-col gap-2 border-t border-line pt-6 text-sm">
               <span className="text-ink-faint">Filed under</span>
-              <Link to={`/posts?cat=${post.category}`} className="font-medium text-accent hover:underline">
+              <Link to={`/posts?cat=${post.category}`} className="font-medium text-link hover:underline">
                 {categoryLabel(post.category)}
               </Link>
             </div>

@@ -18,7 +18,7 @@ const Footer = () => (
         <ul className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm sm:grid-cols-3">
           {CATEGORIES.map((c) => (
             <li key={c.value}>
-              <Link to={`/posts?cat=${c.value}`} className="text-ink-soft hover:text-accent hover:underline">
+              <Link to={`/posts?cat=${c.value}`} className="text-ink-soft hover:text-link hover:underline">
                 {c.label}
               </Link>
             </li>

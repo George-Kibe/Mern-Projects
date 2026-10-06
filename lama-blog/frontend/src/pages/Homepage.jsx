@@ -63,7 +63,7 @@ const Featured = ({ isSaved }) => {
           </ul>
         )}
       </div>
-      <Link to="/posts?featured=true" className="flex items-center gap-2 self-end px-2 pb-2 font-medium text-accent hover:underline sm:px-0 sm:pb-0">
+      <Link to="/posts?featured=true" className="flex items-center gap-2 self-end px-2 pb-2 font-medium text-link hover:underline sm:px-0 sm:pb-0">
         All featured posts
         <ArrowRight size={16} aria-hidden />
       </Link>
@@ -88,13 +88,13 @@ const MostRead = () => {
             ))
           : popular.data.posts.map((post, i) => (
               <li key={post._id} className="group relative flex gap-4 border-b border-line-soft py-4 last:border-0">
-                <span className="w-6 shrink-0 font-mono text-lg font-medium text-accent tabular-nums" aria-hidden>
+                <span className="w-6 shrink-0 font-mono text-lg font-medium text-link tabular-nums" aria-hidden>
                   {i + 1}
                 </span>
                 <div className="flex min-w-0 flex-col gap-1">
                   <Link
                     to={`/posts/${post.slug}`}
-                    className="font-medium leading-snug group-hover:text-accent after:absolute after:inset-0"
+                    className="font-medium leading-snug group-hover:text-link after:absolute after:inset-0"
                   >
                     {post.title}
                   </Link>
@@ -161,7 +161,7 @@ const Homepage = () => {
             id="latest-heading"
             title="Latest posts"
             link={
-              <Link to="/posts" className="flex shrink-0 items-center gap-2 font-medium text-accent hover:underline">
+              <Link to="/posts" className="flex shrink-0 items-center gap-2 font-medium text-link hover:underline">
                 Browse all
                 <ArrowRight size={16} aria-hidden />
               </Link>

@@ -164,13 +164,13 @@ export const ActiveFilters = ({ filters, update, toggleCategory, clearAll }) => 
           key={chip.key}
           type="button"
           onClick={chip.remove}
-          className="inline-flex min-h-8 items-center gap-1 rounded-full bg-accent-soft py-1 pr-2 pl-4 text-sm text-accent hover:bg-accent hover:text-white"
+          className="inline-flex min-h-8 items-center gap-1 rounded-full bg-accent-soft py-1 pr-2 pl-4 text-sm text-link hover:bg-accent hover:text-white"
         >
           {chip.label}
           <X size={14} weight="bold" aria-label="Remove filter" />
         </button>
       ))}
-      <button type="button" onClick={clearAll} className="ml-2 text-sm font-medium text-ink-soft underline hover:text-accent">
+      <button type="button" onClick={clearAll} className="ml-2 text-sm font-medium text-ink-soft underline hover:text-link">
         Clear all
       </button>
     </div>

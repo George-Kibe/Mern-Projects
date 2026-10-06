@@ -201,6 +201,26 @@ A cool, low-chroma violet family for ground, ink and hairlines, punctuated by on
 
 **The Card Stock Rule.** White is the material of cards and controls resting on lavender. It is never a page or section background.
 
+### Dark theme
+Same tokens, night values, set on `[data-theme="dark"]` in `src/index.css`. The theme follows the OS until the reader picks one with the masthead toggle (saved in `localStorage` under `theme`, synced across tabs); `index.html` applies it before first paint.
+
+| Token | Light | Dark |
+|---|---|---|
+| ground | #e6e6ff | #0f1024 |
+| ground-deep | #d9d9fa | #1a1c3a |
+| card | #ffffff | #1f2245 |
+| tint | #f4f4ff | #282c55 |
+| ink | #14163a | #e6e6ff (the brand lavender becomes the ink) |
+| ink-soft | #3f4370 | #bcc0ea |
+| ink-faint | #5b5f8c | #9599cc |
+| line / line-soft | #c9caf2 / #e3e3fa | #33386a / #2a2e5a |
+| accent / accent-hover / accent-soft | #1e40af / #1a3796 / #dce3fa | #3554d1 / #4565e0 / #263266 |
+| link | #1e40af | #a3b4ff |
+| danger / danger-soft | #b42318 / #fdecea | #ff8a80 / #3d1c27 |
+| code-bg | #14163a | #0a0b1c |
+
+**The Link Rule.** Blue *fills* (buttons, rules, chips, the flag) use `accent`; blue *text* (links, subject codes, active labels, hover text) uses `link`. In light they are the same blue; in dark, `link` brightens so blue text keeps 4.5:1 on the night ground while white labels on `accent` fills keep their contrast. The destructive button stays #b42318 in both themes.
+
 ## Typography
 
 **Display Font:** Geist Variable (with ui-sans-serif, system-ui)

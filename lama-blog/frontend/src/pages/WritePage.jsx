@@ -130,7 +130,7 @@ const WritePage = () => {
             </div>
           ) : (
             <Upload type="image" setProgress={setProgress} setData={setCover} className="block w-full">
-              <div className="flex aspect-[3/1] min-h-40 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line bg-card/50 text-ink-soft transition-colors hover:border-accent hover:text-accent">
+              <div className="flex aspect-[3/1] min-h-40 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line bg-card/50 text-ink-soft transition-colors hover:border-accent hover:text-link">
                 <ImageSquare size={32} aria-hidden />
                 <span className="font-medium">Add a cover image</span>
                 <span className="text-sm text-ink-faint">JPG, PNG or WebP, up to 10 MB</span>

@@ -12,7 +12,7 @@ import { filingDate, formatCount, readingTime } from "../lib/format";
 const CallLabel = ({ post, withReads = false }) => (
   <p className="call-label flex flex-wrap items-center gap-x-2">
     <span className="whitespace-nowrap">
-      <span className="text-accent" title={categoryLabel(post.category)}>
+      <span className="text-link" title={categoryLabel(post.category)}>
         {categoryCode(post.category)}
       </span>
       {" / "}
@@ -30,7 +30,7 @@ const CallLabel = ({ post, withReads = false }) => (
 
 export const Initial = ({ name, size = "size-6 text-xs" }) => (
   <span
-    className={`flex shrink-0 items-center justify-center rounded-full bg-accent-soft font-semibold text-accent uppercase ${size}`}
+    className={`flex shrink-0 items-center justify-center rounded-full bg-accent-soft font-semibold text-link uppercase ${size}`}
     aria-hidden
   >
     {name?.[0] ?? "?"}
@@ -41,7 +41,7 @@ const Byline = ({ post }) =>
   post.user?.username ? (
     <Link
       to={`/posts?author=${encodeURIComponent(post.user.username)}`}
-      className="relative z-10 flex min-w-0 items-center gap-2 rounded text-sm text-ink-soft hover:text-accent"
+      className="relative z-10 flex min-w-0 items-center gap-2 rounded text-sm text-ink-soft hover:text-link"
     >
       {post.user.img ? (
         <Image src={post.user.img} w="24" h="24" className="size-6 shrink-0 rounded-full object-cover" />
@@ -60,7 +60,7 @@ const cardShell =
 // The ruled line sits on a wrapper so clamped titles never peek below it.
 const Title = ({ post, as: Heading, className, rule = "pb-4" }) => (
   <div className={`border-b border-accent ${rule}`}>
-    <Heading className={`font-semibold group-hover:text-accent ${className}`}>
+    <Heading className={`font-semibold group-hover:text-link ${className}`}>
       <Link to={`/posts/${post.slug}`} className={titleLink}>
         {post.title}
       </Link>

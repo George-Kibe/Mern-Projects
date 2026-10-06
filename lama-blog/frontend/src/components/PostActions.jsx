@@ -8,7 +8,7 @@ import { api, authHeaders, errorMessage } from "../lib/api";
 import { useSavedPosts } from "../lib/useSavedPosts";
 
 const actionClass =
-  "btn btn-secondary justify-start disabled:opacity-60 data-[on=true]:text-accent data-[on=true]:shadow-[inset_0_0_0_1px_var(--color-accent)]";
+  "btn btn-secondary justify-start disabled:opacity-60 data-[on=true]:text-link data-[on=true]:shadow-[inset_0_0_0_1px_var(--color-accent)]";
 
 const PostActions = ({ post, layout = "column" }) => {
   const { user } = useUser();

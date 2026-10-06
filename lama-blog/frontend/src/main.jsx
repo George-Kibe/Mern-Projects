@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./index.css";
 import { shouldRetry } from "./lib/api";
+import { useTheme } from "./lib/theme";
 import PrimaryLayout from "./layouts/PrimaryLayout.jsx";
 import Homepage from "./pages/Homepage.jsx";
 import PostsListPage from "./pages/PostsListPage.jsx";
@@ -64,26 +65,52 @@ const router = createBrowserRouter([
   },
 ]);
 
-// Clerk's sign-in, sign-up and user menu in the blog's own palette.
-const clerkAppearance = {
-  variables: {
+// Clerk's sign-in, sign-up and user menu in the blog's palette, per theme
+// (values mirror the tokens in index.css).
+const clerkPalettes = {
+  light: {
     colorPrimary: "#1e40af",
     colorText: "#14163a",
     colorTextSecondary: "#3f4370",
     colorBackground: "#ffffff",
     colorInputBackground: "#ffffff",
-    fontFamily: '"Geist Variable", ui-sans-serif, system-ui, sans-serif',
-    borderRadius: "12px",
+    colorInputText: "#14163a",
+    colorNeutral: "#14163a",
   },
+  dark: {
+    colorPrimary: "#3554d1",
+    colorText: "#e6e6ff",
+    colorTextSecondary: "#bcc0ea",
+    colorBackground: "#1f2245",
+    colorInputBackground: "#282c55",
+    colorInputText: "#e6e6ff",
+    colorNeutral: "#e6e6ff",
+  },
+};
+
+const ThemedClerkProvider = ({ children }) => {
+  const { theme } = useTheme();
+  const appearance = {
+    variables: {
+      ...clerkPalettes[theme],
+      fontFamily: '"Geist Variable", ui-sans-serif, system-ui, sans-serif',
+      borderRadius: "12px",
+    },
+  };
+  return (
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} appearance={appearance}>
+      {children}
+    </ClerkProvider>
+  );
 };
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} appearance={clerkAppearance}>
+    <ThemedClerkProvider>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
         <ToastContainer position="bottom-right" autoClose={3500} newestOnTop limit={3} />
       </QueryClientProvider>
-    </ClerkProvider>
+    </ThemedClerkProvider>
   </StrictMode>
 );

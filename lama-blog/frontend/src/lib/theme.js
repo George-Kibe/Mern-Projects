@@ -29,6 +29,11 @@ media.addEventListener("change", () => {
   if (!stored()) apply();
 });
 
+// A choice made in another tab applies here too.
+window.addEventListener("storage", (event) => {
+  if (event.key === STORAGE_KEY) apply();
+});
+
 const subscribe = (listener) => {
   listeners.add(listener);
   return () => listeners.delete(listener);

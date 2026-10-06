@@ -13,7 +13,7 @@ const NAV = [
 const navClass = (active) =>
   `rounded-full px-4 py-2 text-[15px] font-medium transition-colors ${
     active
-      ? "bg-card text-accent shadow-[inset_0_0_0_1px_var(--color-line)]"
+      ? "bg-card text-link shadow-[inset_0_0_0_1px_var(--color-line)]"
       : "text-ink-soft hover:bg-ground-deep hover:text-ink"
   }`;
 

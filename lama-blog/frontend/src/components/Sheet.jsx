@@ -18,7 +18,7 @@ const Sheet = ({ open, onClose, title, children, footer }) => {
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
       aria-label={title}
-      className="m-0 mt-auto max-h-[85dvh] w-full max-w-none overflow-hidden rounded-t-2xl bg-ground p-0 text-ink backdrop:bg-ink/40 open:flex open:flex-col sm:mx-auto sm:mb-auto sm:max-w-lg sm:rounded-2xl"
+      className="m-0 mt-auto max-h-[85dvh] w-full max-w-none overflow-hidden rounded-t-2xl bg-ground p-0 text-ink backdrop:bg-[rgb(8_9_24/0.55)] open:flex open:flex-col sm:mx-auto sm:mb-auto sm:max-w-lg sm:rounded-2xl"
       style={{ animation: open ? "sheet-in 320ms var(--ease-out-expo)" : undefined }}
     >
       <div className="flex items-center justify-between border-b border-line px-6 py-4">
