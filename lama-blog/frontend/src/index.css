@@ -1,40 +1,286 @@
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 @import "tailwindcss";
 
-body {
-  background-color: #E6E6FF;
-  width: 100vw;
-  overflow-x: hidden;
-  font-family: "Montserrat", sans-serif;
+/*
+  Realhive Blog: card catalog system.
+  One 8px module. Cards 12px radius, controls are pills, guide tabs round on top only.
+*/
+@theme {
+  --color-ground: #e6e6ff;
+  --color-ground-deep: #d9d9fa;
+  --color-card: #ffffff;
+  --color-tint: #f4f4ff;
+  --color-ink: #14163a;
+  --color-ink-soft: #3f4370;
+  --color-ink-faint: #5b5f8c;
+  --color-line: #c9caf2;
+  --color-line-soft: #e3e3fa;
+  --color-accent: #1e40af;
+  --color-accent-hover: #1a3796;
+  --color-accent-soft: #dce3fa;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
+
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", monospace;
+
+  --shadow-card: 0 1px 2px rgb(20 22 58 / 0.06), 0 12px 32px -16px rgb(30 64 175 / 0.28);
+  --shadow-lift: 0 2px 4px rgb(20 22 58 / 0.06), 0 20px 40px -18px rgb(30 64 175 / 0.4);
+  --shadow-pop: 0 8px 24px -8px rgb(20 22 58 / 0.25);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.animatedButton{
-  animation-duration: 10000ms;
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 88px;
+  }
+
+  body {
+    background-color: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    caret-color: var(--color-accent);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-ink-faint);
+    opacity: 1;
+  }
+
+  * {
+    scrollbar-color: var(--color-line) transparent;
+    scrollbar-width: thin;
+  }
 }
 
-.ql-container{
-  border: none !important;
+@layer components {
+  /* Page container: the one horizontal gutter used everywhere. */
+  .container-page {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+  @media (min-width: 640px) {
+    .container-page { padding-inline: 24px; }
+  }
+  @media (min-width: 1024px) {
+    .container-page { padding-inline: 32px; }
+  }
+
+  /* Small mono catalog label: category code and filing date. */
+  .call-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-faint);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 24px;
+    white-space: nowrap;
+    transition: background-color 150ms, color 150ms, box-shadow 150ms, transform 150ms;
+  }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { cursor: not-allowed; opacity: 0.55; }
+
+  .btn-primary { background: var(--color-accent); color: #ffffff; }
+  .btn-primary:hover:not(:disabled) { background: var(--color-accent-hover); }
+
+  .btn-secondary {
+    background: var(--color-card);
+    color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+  .btn-secondary:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--color-accent); color: var(--color-accent); }
+
+  .btn-ghost { color: var(--color-ink-soft); }
+  .btn-ghost:hover:not(:disabled) { background: var(--color-ground-deep); color: var(--color-ink); }
+
+  .btn-danger { background: var(--color-danger); color: #ffffff; }
+  .btn-danger:hover:not(:disabled) { background: #912018; }
+
+  .field {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: var(--color-card);
+    color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+    transition: box-shadow 150ms;
+  }
+  .field:hover { box-shadow: inset 0 0 0 1px var(--color-ink-faint); }
+  .field:focus { outline: none; box-shadow: inset 0 0 0 2px var(--color-accent); }
+
+  .field-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  /* Native select with a drawn chevron so it matches .field. */
+  .field-select {
+    appearance: none;
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%233f4370' d='M213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 14px;
+  }
+
+  /* Saved posts carry a folded corner flag. */
+  .saved-flag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(225deg, var(--color-accent) 50%, transparent 50%);
+    border-top-right-radius: 12px;
+    pointer-events: none;
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--color-line-soft), var(--color-tint), var(--color-line-soft));
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    border-radius: 8px;
+  }
 }
-.ql-toolbar{
-  border: none !important;
+
+/* The one authored motion: cards file into the drawer when results change. */
+/* Starts visible: only position settles, so content never hides behind motion. */
+@keyframes file-in {
+  from { transform: translateY(12px); }
+  to { transform: none; }
 }
-.ql-editor{
-  border: none !important;
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }
-/* Rendered post bodies (Quill / seeded HTML) */
+@keyframes sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.file-in {
+  animation: file-in 480ms var(--ease-out-expo) backwards;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* Article body: calm reading column. */
 .post-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  font-size: 17px;
   line-height: 1.75;
+  color: var(--color-ink);
 }
-.post-content h2 { font-size: 1.6rem; font-weight: 700; margin-top: 1rem; }
-.post-content h3 { font-size: 1.3rem; font-weight: 600; margin-top: 0.5rem; }
-.post-content ul { list-style: disc; padding-left: 1.5rem; }
-.post-content ol { list-style: decimal; padding-left: 1.5rem; }
-.post-content a { color: #1e40af; text-decoration: underline; }
-.post-content blockquote { border-left: 4px solid #1e40af; padding-left: 1rem; color: #4b5563; font-style: italic; }
-.post-content code { background: #eef; padding: 0.1rem 0.35rem; border-radius: 0.35rem; font-size: 0.9em; }
-.post-content pre { background: #1e1e2e; color: #e6e6ff; padding: 1rem; border-radius: 0.75rem; overflow-x: auto; text-align: left; }
-.post-content pre code { background: none; padding: 0; }
-.post-content img { max-width: 100%; height: auto; border-radius: 1rem; }
-.post-content iframe.ql-video { width: 100%; aspect-ratio: 16 / 9; border-radius: 1rem; }
+@media (min-width: 768px) {
+  .post-content { font-size: 18px; }
+}
+.post-content > * + * { margin-top: 24px; }
+.post-content h2 { font-size: 1.5em; font-weight: 650; margin-top: 48px; }
+.post-content h3 { font-size: 1.25em; font-weight: 600; margin-top: 40px; }
+.post-content h2 + *, .post-content h3 + * { margin-top: 16px; }
+.post-content ul { list-style: disc; padding-left: 24px; }
+.post-content ol { list-style: decimal; padding-left: 24px; }
+.post-content li + li { margin-top: 8px; }
+.post-content li::marker { color: var(--color-accent); }
+.post-content a { color: var(--color-accent); text-decoration: underline; }
+.post-content strong { font-weight: 650; }
+.post-content blockquote {
+  padding: 16px 24px;
+  border-radius: 12px;
+  background: var(--color-tint);
+  color: var(--color-ink-soft);
+  font-size: 1.05em;
+}
+.post-content code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--color-tint);
+  box-shadow: inset 0 0 0 1px var(--color-line-soft);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.post-content pre {
+  background: var(--color-ink);
+  color: #e6e6ff;
+  padding: 16px 24px;
+  border-radius: 12px;
+  overflow-x: auto;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.post-content pre code { background: none; box-shadow: none; padding: 0; color: inherit; font-size: inherit; }
+.post-content img { width: 100%; height: auto; border-radius: 12px; }
+.post-content iframe.ql-video { width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; }
+
+/* Quill editor inside the write form */
+.ql-toolbar.ql-snow { border: none !important; border-bottom: 1px solid var(--color-line-soft) !important; padding: 8px 16px !important; font-family: var(--font-sans) !important; }
+.ql-container.ql-snow { border: none !important; font-family: var(--font-sans) !important; font-size: 17px !important; }
+.ql-editor { min-height: 320px; padding: 24px !important; line-height: 1.75; }
+.ql-editor.ql-blank::before { color: var(--color-ink-faint) !important; font-style: normal !important; left: 24px !important; }
+
+/* Toasts in the system's colors */
+.Toastify__toast { font-family: var(--font-sans); border-radius: 12px !important; color: var(--color-ink) !important; box-shadow: var(--shadow-pop) !important; }
+.Toastify__progress-bar--success, .Toastify__progress-bar--info { background: var(--color-accent) !important; }

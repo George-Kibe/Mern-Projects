@@ -1,11 +1,22 @@
-import { Outlet } from "react-router";
-import Navbar from "../components/Navbar";
+import { Outlet, ScrollRestoration } from "react-router";
+import Masthead from "../components/Masthead";
+import Footer from "../components/Footer";
 
 const PrimaryLayout = () => {
   return (
-    <div className="px-4 md:px-8 lg:px-16 lx:px-32 2xl:px-64">
-      <Navbar/>
-      <Outlet/>
+    <div className="flex min-h-[100dvh] flex-col">
+      <a
+        href="#main"
+        className="btn btn-primary sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50"
+      >
+        Skip to content
+      </a>
+      <Masthead />
+      <main id="main" className="flex-1">
+        <Outlet />
+      </main>
+      <Footer />
+      <ScrollRestoration />
     </div>
   );
 };

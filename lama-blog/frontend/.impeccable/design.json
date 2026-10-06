@@ -1,0 +1,468 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-06T00:00:00Z",
+  "title": "Design System: Realhive Blog",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Lavender Ground",
+        "canonical": "oklch(93.2% 0.034 285.7)",
+        "tonalRamp": [
+          "oklch(15% 0.005 285.7)",
+          "oklch(26% 0.005 285.7)",
+          "oklch(37% 0.005 285.7)",
+          "oklch(48% 0.008 285.7)",
+          "oklch(59% 0.015 285.7)",
+          "oklch(70% 0.021 285.7)",
+          "oklch(82% 0.028 285.7)",
+          "oklch(95% 0.033 285.7)"
+        ]
+      },
+      "ground-deep": {
+        "role": "neutral",
+        "displayName": "Drawer Lavender",
+        "canonical": "oklch(89.6% 0.045 285.5)",
+        "tonalRamp": [
+          "oklch(15% 0.007 285.5)",
+          "oklch(26% 0.007 285.5)",
+          "oklch(37% 0.007 285.5)",
+          "oklch(48% 0.014 285.5)",
+          "oklch(59% 0.022 285.5)",
+          "oklch(70% 0.030 285.5)",
+          "oklch(82% 0.039 285.5)",
+          "oklch(95% 0.041 285.5)"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Card Stock",
+        "canonical": "oklch(100% 0 0)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(37% 0 0)",
+          "oklch(48% 0 0)",
+          "oklch(59% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "tint": {
+        "role": "neutral",
+        "displayName": "Pale Tint",
+        "canonical": "oklch(97.0% 0.015 286.1)",
+        "tonalRamp": [
+          "oklch(15% 0.002 286.1)",
+          "oklch(26% 0.002 286.1)",
+          "oklch(37% 0.002 286.1)",
+          "oklch(48% 0.003 286.1)",
+          "oklch(59% 0.006 286.1)",
+          "oklch(70% 0.008 286.1)",
+          "oklch(82% 0.011 286.1)",
+          "oklch(95% 0.014 286.1)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Catalog Ink",
+        "canonical": "oklch(22.2% 0.068 276.9)",
+        "tonalRamp": [
+          "oklch(15% 0.060 276.9)",
+          "oklch(26% 0.064 276.9)",
+          "oklch(37% 0.051 276.9)",
+          "oklch(48% 0.039 276.9)",
+          "oklch(59% 0.026 276.9)",
+          "oklch(70% 0.014 276.9)",
+          "oklch(82% 0.010 276.9)",
+          "oklch(95% 0.010 276.9)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "oklch(40.1% 0.076 278.5)",
+        "tonalRamp": [
+          "oklch(15% 0.044 278.5)",
+          "oklch(26% 0.058 278.5)",
+          "oklch(37% 0.072 278.5)",
+          "oklch(48% 0.066 278.5)",
+          "oklch(59% 0.052 278.5)",
+          "oklch(70% 0.038 278.5)",
+          "oklch(82% 0.023 278.5)",
+          "oklch(95% 0.011 278.5)"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "canonical": "oklch(50.1% 0.072 279.6)",
+        "tonalRamp": [
+          "oklch(15% 0.030 279.6)",
+          "oklch(26% 0.043 279.6)",
+          "oklch(37% 0.056 279.6)",
+          "oklch(48% 0.069 279.6)",
+          "oklch(59% 0.061 279.6)",
+          "oklch(70% 0.048 279.6)",
+          "oklch(82% 0.034 279.6)",
+          "oklch(95% 0.018 279.6)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(85.1% 0.055 284.0)",
+        "tonalRamp": [
+          "oklch(15% 0.008 284.0)",
+          "oklch(26% 0.008 284.0)",
+          "oklch(37% 0.011 284.0)",
+          "oklch(48% 0.021 284.0)",
+          "oklch(59% 0.031 284.0)",
+          "oklch(70% 0.041 284.0)",
+          "oklch(82% 0.052 284.0)",
+          "oklch(95% 0.046 284.0)"
+        ]
+      },
+      "line-soft": {
+        "role": "neutral",
+        "displayName": "Soft Hairline",
+        "canonical": "oklch(92.3% 0.031 285.8)",
+        "tonalRamp": [
+          "oklch(15% 0.005 285.8)",
+          "oklch(26% 0.005 285.8)",
+          "oklch(37% 0.005 285.8)",
+          "oklch(48% 0.008 285.8)",
+          "oklch(59% 0.014 285.8)",
+          "oklch(70% 0.019 285.8)",
+          "oklch(82% 0.026 285.8)",
+          "oklch(95% 0.030 285.8)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Catalog Blue",
+        "canonical": "oklch(42.4% 0.181 265.6)",
+        "tonalRamp": [
+          "oklch(15% 0.098 265.6)",
+          "oklch(26% 0.132 265.6)",
+          "oklch(37% 0.165 265.6)",
+          "oklch(48% 0.164 265.6)",
+          "oklch(59% 0.131 265.6)",
+          "oklch(70% 0.098 265.6)",
+          "oklch(82% 0.062 265.6)",
+          "oklch(95% 0.027 265.6)"
+        ]
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "Catalog Blue Pressed",
+        "canonical": "oklch(38.2% 0.159 265.8)",
+        "tonalRamp": [
+          "oklch(15% 0.098 265.8)",
+          "oklch(26% 0.127 265.8)",
+          "oklch(37% 0.156 265.8)",
+          "oklch(48% 0.133 265.8)",
+          "oklch(59% 0.104 265.8)",
+          "oklch(70% 0.075 265.8)",
+          "oklch(82% 0.043 265.8)",
+          "oklch(95% 0.024 265.8)"
+        ]
+      },
+      "accent-soft": {
+        "role": "primary",
+        "displayName": "Blue Wash",
+        "canonical": "oklch(91.7% 0.032 272.3)",
+        "tonalRamp": [
+          "oklch(15% 0.005 272.3)",
+          "oklch(26% 0.005 272.3)",
+          "oklch(37% 0.005 272.3)",
+          "oklch(48% 0.009 272.3)",
+          "oklch(59% 0.015 272.3)",
+          "oklch(70% 0.020 272.3)",
+          "oklch(82% 0.027 272.3)",
+          "oklch(95% 0.030 272.3)"
+        ]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Withdrawal Red",
+        "canonical": "oklch(50.0% 0.182 29.5)",
+        "tonalRamp": [
+          "oklch(15% 0.076 29.5)",
+          "oklch(26% 0.109 29.5)",
+          "oklch(37% 0.143 29.5)",
+          "oklch(48% 0.176 29.5)",
+          "oklch(59% 0.155 29.5)",
+          "oklch(70% 0.121 29.5)",
+          "oklch(82% 0.085 29.5)",
+          "oklch(95% 0.045 29.5)"
+        ]
+      },
+      "danger-soft": {
+        "role": "tertiary",
+        "displayName": "Red Wash",
+        "canonical": "oklch(95.6% 0.019 25.6)",
+        "tonalRamp": [
+          "oklch(15% 0.003 25.6)",
+          "oklch(26% 0.003 25.6)",
+          "oklch(37% 0.003 25.6)",
+          "oklch(48% 0.004 25.6)",
+          "oklch(59% 0.007 25.6)",
+          "oklch(70% 0.011 25.6)",
+          "oklch(82% 0.015 25.6)",
+          "oklch(95% 0.019 25.6)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Homepage statement and article titles; 36/48/60px by breakpoint (article up to 56px, 1.08 leading)."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings and the browse page title; 24px to 30px at md."
+      },
+      "title": {
+        "displayName": "Card Title",
+        "purpose": "Index card titles over the blue ruled line; 16px row, 20px card, 20-24px filed, 24-30px feature."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "UI text and card summaries."
+      },
+      "article": {
+        "displayName": "Article",
+        "purpose": "Reading column at 17px (18px from md), 68ch max."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, nav links, guide tabs."
+      },
+      "call-label": {
+        "displayName": "Call Label",
+        "purpose": "Mono catalog metadata only: subject code, filing date, reading time, counts, run counter."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "0 1px 2px rgb(20 22 58 / 0.06), 0 12px 32px -16px rgb(30 64 175 / 0.28)",
+        "purpose": "Index cards and panels at rest."
+      },
+      {
+        "name": "lift",
+        "value": "0 2px 4px rgb(20 22 58 / 0.06), 0 20px 40px -18px rgb(30 64 175 / 0.4)",
+        "purpose": "Card hover, with translateY(-2px)."
+      },
+      {
+        "name": "pop",
+        "value": "0 8px 24px -8px rgb(20 22 58 / 0.25)",
+        "purpose": "Toasts and floating overlays."
+      },
+      {
+        "name": "hairline",
+        "value": "inset 0 0 0 1px var(--color-line)",
+        "purpose": "Stroke for fields, secondary buttons, chips, active nav."
+      },
+      {
+        "name": "focus-field",
+        "value": "inset 0 0 0 2px var(--color-accent)",
+        "purpose": "Field focus."
+      },
+      {
+        "name": "tab-rule",
+        "value": "inset 0 2px 0 var(--color-accent)",
+        "purpose": "Top edge of the active guide tab."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Card hover lift, file-in settle, sheet entry."
+      },
+      {
+        "name": "file-in",
+        "value": "translateY(12px) to none, 480ms ease-out-expo, 40ms stagger per card",
+        "purpose": "The one authored motion: cards settle into the drawer when results change."
+      },
+      {
+        "name": "control-transition",
+        "value": "150ms",
+        "purpose": "Buttons, fields, chips color and stroke changes."
+      },
+      {
+        "name": "tab-transition",
+        "value": "200ms",
+        "purpose": "Guide tab padding and tint changes."
+      },
+      {
+        "name": "card-transition",
+        "value": "300ms ease-out-expo",
+        "purpose": "Card shadow and lift."
+      },
+      {
+        "name": "sheet-in",
+        "value": "translateY(100%) to none, 320ms ease-out-expo",
+        "purpose": "Bottom sheet entry."
+      },
+      {
+        "name": "shimmer",
+        "value": "1.4s ease-in-out infinite",
+        "purpose": "Skeleton loading."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "container",
+        "value": "1200px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Catalog Blue pill for the main action (Write, Publish, submit).",
+      "html": "<button class=\"ds-btn ds-btn-primary\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M227.31 73.37 182.63 28.68a16 16 0 0 0-22.63 0L36.69 152A15.86 15.86 0 0 0 32 163.31V208a16 16 0 0 0 16 16h44.69a15.86 15.86 0 0 0 11.31-4.69L227.31 96a16 16 0 0 0 0-22.63ZM92.69 208H48v-44.69l88-88L180.69 120ZM192 108.68 147.31 64l24-24L216 84.68Z\"/></svg>Write</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 16px;border:none;border-radius:9999px;font-family:var(--font-sans,'Geist Variable',system-ui,sans-serif);font-weight:500;font-size:15px;line-height:24px;white-space:nowrap;cursor:pointer;transition:background-color 150ms,color 150ms,box-shadow 150ms,transform 150ms}.ds-btn:active{transform:translateY(1px)}.ds-btn:focus-visible{outline:2px solid #1e40af;outline-offset:2px}.ds-btn-primary{background:#1e40af;color:#fff}.ds-btn-primary:hover{background:#1a3796}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "White pill with a hairline inset; stroke and text turn blue on hover.",
+      "html": "<button class=\"ds-btn2\">Sign in</button>",
+      "css": ".ds-btn2{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:8px 16px;border:none;border-radius:9999px;background:#fff;color:#14163a;box-shadow:inset 0 0 0 1px #c9caf2;font-family:var(--font-sans,'Geist Variable',system-ui,sans-serif);font-weight:500;font-size:15px;line-height:24px;cursor:pointer;transition:color 150ms,box-shadow 150ms,transform 150ms}.ds-btn2:hover{box-shadow:inset 0 0 0 1px #1e40af;color:#1e40af}.ds-btn2:active{transform:translateY(1px)}.ds-btn2:focus-visible{outline:2px solid #1e40af;outline-offset:2px}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Unfilled pill in Soft Ink that fills Drawer Lavender on hover.",
+      "html": "<button class=\"ds-btn-ghost\">Cancel</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;min-height:40px;padding:8px 16px;border:none;border-radius:9999px;background:transparent;color:#3f4370;font-family:var(--font-sans,'Geist Variable',system-ui,sans-serif);font-weight:500;font-size:15px;line-height:24px;cursor:pointer;transition:background-color 150ms,color 150ms}.ds-btn-ghost:hover{background:#d9d9fa;color:#14163a}.ds-btn-ghost:focus-visible{outline:2px solid #1e40af;outline-offset:2px}"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "White 12px field with hairline inset, leading magnifier, 2px blue focus stroke.",
+      "html": "<div class=\"ds-search\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"m229.66 218.34-50.07-50.06a88.11 88.11 0 1 0-11.31 11.31l50.06 50.07a8 8 0 0 0 11.32-11.32ZM40 112a72 72 0 1 1 72 72 72.08 72.08 0 0 1-72-72Z\"/></svg><input class=\"ds-field\" type=\"search\" placeholder=\"Search posts\"></div>",
+      "css": ".ds-search{position:relative;max-width:400px}.ds-search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#5b5f8c;pointer-events:none}.ds-field{width:100%;min-height:44px;padding:10px 16px 10px 44px;border:none;border-radius:12px;background:#fff;color:#14163a;font:16px/1.6 var(--font-sans,'Geist Variable',system-ui,sans-serif);box-shadow:inset 0 0 0 1px #c9caf2;transition:box-shadow 150ms}.ds-field::placeholder{color:#5b5f8c}.ds-field:hover{box-shadow:inset 0 0 0 1px #5b5f8c}.ds-field:focus{outline:none;box-shadow:inset 0 0 0 2px #1e40af}"
+    },
+    {
+      "name": "Masthead Nav",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Pill nav links; the active link becomes a white pill with blue text.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-link is-active\" href=\"#\">Browse</a><a class=\"ds-nav-link\" href=\"#\">Trending</a><a class=\"ds-nav-link\" href=\"#\">Most read</a></nav>",
+      "css": ".ds-nav{display:flex;gap:8px;padding:12px 16px;background:#e6e6ff;border-bottom:1px solid #c9caf2}.ds-nav-link{border-radius:9999px;padding:8px 16px;font:500 15px/24px var(--font-sans,'Geist Variable',system-ui,sans-serif);color:#3f4370;text-decoration:none;transition:background-color 150ms,color 150ms}.ds-nav-link:hover{background:#d9d9fa;color:#14163a}.ds-nav-link.is-active{background:#fff;color:#1e40af;box-shadow:inset 0 0 0 1px #c9caf2}.ds-nav-link:focus-visible{outline:2px solid #1e40af;outline-offset:2px}"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Pill toggle with a mono count; selected fills Catalog Blue with a check.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip is-on\" aria-pressed=\"true\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"m232.49 80.49-128 128a12 12 0 0 1-17 0l-56-56a12 12 0 1 1 17-17L96 183 215.51 63.51a12 12 0 0 1 17 17Z\"/></svg>Databases<span class=\"ds-count\">4</span></button><button class=\"ds-chip\" aria-pressed=\"false\">AI &amp; ML<span class=\"ds-count\">3</span></button></div>",
+      "css": ".ds-chips{display:flex;gap:8px;flex-wrap:wrap}.ds-chip{display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:4px 16px;border:none;border-radius:9999px;background:#fff;color:#3f4370;box-shadow:inset 0 0 0 1px #c9caf2;font:14px/20px var(--font-sans,'Geist Variable',system-ui,sans-serif);cursor:pointer;transition:color 150ms,box-shadow 150ms,background-color 150ms}.ds-chip:hover{color:#14163a;box-shadow:inset 0 0 0 1px #5b5f8c}.ds-chip.is-on{background:#1e40af;color:#fff;box-shadow:none}.ds-chip:focus-visible{outline:2px solid #1e40af;outline-offset:2px}.ds-count{font:12px/16px var(--font-mono,'Geist Mono Variable',ui-monospace,monospace);color:#5b5f8c}.ds-chip.is-on .ds-count{color:rgb(255 255 255 / .8)}"
+    },
+    {
+      "name": "Guide Tabs and Drawer",
+      "kind": "custom",
+      "refersTo": "guide-tab-active",
+      "description": "Subject tabs over a tinted drawer; the active tab is raised, accent-topped and joined to the drawer.",
+      "html": "<div class=\"ds-cat\"><div class=\"ds-tabs\"><a class=\"ds-tab is-active\" href=\"#\">Featured</a><a class=\"ds-tab\" href=\"#\">All posts<span>13</span></a><a class=\"ds-tab\" href=\"#\">Development<span>4</span></a><a class=\"ds-tab\" href=\"#\">Databases<span>3</span></a></div><div class=\"ds-drawer\">Filed cards sit here.</div></div>",
+      "css": ".ds-cat{font-family:var(--font-sans,'Geist Variable',system-ui,sans-serif);color:#14163a}.ds-tabs{display:flex;align-items:flex-end;gap:4px;overflow-x:auto}.ds-tab{display:flex;align-items:baseline;gap:8px;margin-top:4px;padding:8px 16px;border-radius:12px 12px 0 0;background:rgb(217 217 250 / .45);color:#3f4370;font-size:15px;text-decoration:none;white-space:nowrap;transition:padding 200ms,background-color 200ms,color 200ms}.ds-tab span{font:12px/16px var(--font-mono,'Geist Mono Variable',ui-monospace,monospace);color:#5b5f8c}.ds-tab:hover{background:rgb(217 217 250 / .75);color:#14163a}.ds-tab.is-active{margin-top:0;padding:12px 16px;background:#d9d9fa;color:#14163a;font-weight:600;box-shadow:inset 0 2px 0 #1e40af}.ds-tab:focus-visible{outline:2px solid #1e40af;outline-offset:2px}.ds-drawer{background:#d9d9fa;border-radius:0 12px 12px 12px;padding:24px;color:#3f4370}"
+    },
+    {
+      "name": "Filed Index Card",
+      "kind": "card",
+      "refersTo": "index-card",
+      "description": "White card with a blue ruled title line, summary, byline and mono call label; saved posts carry a folded corner flag.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-body\"><div class=\"ds-rule\"><h3><a href=\"#\">Indexing strategies for MongoDB at scale</a></h3></div><p class=\"ds-sum\">When compound indexes help, when they hurt, and how to read explain() output.</p><div class=\"ds-foot\"><span class=\"ds-by\"><span class=\"ds-init\">G</span>george</span><p class=\"ds-call\"><span class=\"ds-code\">DB</span> / 2026-09-14 / 7 min read</p></div></div><span class=\"ds-flag\" aria-label=\"Saved\"></span></article>",
+      "css": ".ds-card{position:relative;overflow:hidden;max-width:560px;border-radius:12px;background:#fff;color:#14163a;font-family:var(--font-sans,'Geist Variable',system-ui,sans-serif);box-shadow:0 1px 2px rgb(20 22 58 / .06),0 12px 32px -16px rgb(30 64 175 / .28);transition:box-shadow 300ms cubic-bezier(.16,1,.3,1),transform 300ms cubic-bezier(.16,1,.3,1)}.ds-card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgb(20 22 58 / .06),0 20px 40px -18px rgb(30 64 175 / .4)}.ds-card:focus-within{box-shadow:0 0 0 2px #1e40af}.ds-card-body{display:flex;flex-direction:column;gap:16px;padding:24px}.ds-rule{border-bottom:1px solid #1e40af;padding-bottom:16px}.ds-rule h3{margin:0;font-size:20px;font-weight:600;line-height:1.375;letter-spacing:-.02em}.ds-rule a{color:inherit;text-decoration:none}.ds-card:hover h3{color:#1e40af}.ds-sum{margin:0;color:#3f4370;line-height:1.6}.ds-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px}.ds-by{display:flex;align-items:center;gap:8px;font-size:14px;color:#3f4370}.ds-init{display:flex;width:24px;height:24px;align-items:center;justify-content:center;border-radius:9999px;background:#dce3fa;color:#1e40af;font-size:12px;font-weight:600;text-transform:uppercase}.ds-call{margin:0;font:12px/16px var(--font-mono,'Geist Mono Variable',ui-monospace,monospace);letter-spacing:.02em;font-variant-numeric:tabular-nums;color:#5b5f8c}.ds-code{color:#1e40af}.ds-flag{position:absolute;top:0;right:0;width:32px;height:32px;background:linear-gradient(225deg,#1e40af 50%,transparent 50%);border-top-right-radius:12px;pointer-events:none}"
+    },
+    {
+      "name": "Pagination Run",
+      "kind": "nav",
+      "refersTo": "page-number-active",
+      "description": "Run counter in mono, round page numbers, current page filled blue.",
+      "html": "<nav class=\"ds-pg\"><p class=\"ds-pg-count\"><b>1-12</b> of <b>40</b> posts</p><div class=\"ds-pg-nums\"><a href=\"#\" class=\"ds-pg-n is-current\" aria-current=\"page\">1</a><a href=\"#\" class=\"ds-pg-n\">2</a><a href=\"#\" class=\"ds-pg-n\">3</a><a href=\"#\" class=\"ds-pg-n\">4</a></div></nav>",
+      "css": ".ds-pg{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid #c9caf2;padding-top:24px;font-family:var(--font-sans,'Geist Variable',system-ui,sans-serif)}.ds-pg-count{margin:0;font:13px/16px var(--font-mono,'Geist Mono Variable',ui-monospace,monospace);color:#5b5f8c}.ds-pg-count b{font-weight:400;color:#14163a}.ds-pg-nums{display:flex;gap:4px}.ds-pg-n{display:inline-flex;width:40px;height:40px;align-items:center;justify-content:center;border-radius:9999px;font-size:15px;font-variant-numeric:tabular-nums;color:#3f4370;text-decoration:none;transition:background-color 150ms,color 150ms}.ds-pg-n:hover{background:#fff;color:#14163a;box-shadow:inset 0 0 0 1px #c9caf2}.ds-pg-n.is-current{background:#1e40af;color:#fff;font-weight:600;box-shadow:none}.ds-pg-n:focus-visible{outline:2px solid #1e40af;outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Card Catalog",
+    "overview": "Realhive Blog browses like a library card catalog. Subjects are drawers with guide tabs standing above them; posts are white index cards filed into those drawers; sort and filter are filing rules; pages are numbered card runs. The page itself is a calm lavender ground, the cards are bright white stock lifted off it by soft blue-tinted shadow, and a single blue-800 ink does every job that needs emphasis: the ruled line under each card title, the active tab's top edge, the selected chip, the current page, the primary action.\n\nDensity is moderate and reading-first. Lists are scannable in one pass (title, ruled line, two- or three-line summary, a foot with byline and a mono call label), and the article itself drops into a quiet 68ch column at 17-18px with generous 1.75 leading. Geist carries every role; Geist Mono appears only as catalog metadata. Motion is nearly absent: cards settle into the drawer when results change, and nothing else is choreographed.\n\nThe world rejects the default blog template of a hero banner over an equal card grid with a sidebar. Browsing happens inside a drawer, not on an open page.",
+    "keyCharacteristics": [
+      "Lavender ground, white card stock, one blue ink accent.",
+      "Guide tabs above a tinted drawer; the active tab joins the drawer.",
+      "Every index card title sits on a 1px blue ruled line.",
+      "Mono call labels (subject code / filing date / reading time) as the only metadata voice.",
+      "Two shapes only: 12px for surfaces, full pill for controls.",
+      "One 8px module (with a 4px half-step).",
+      "Saved posts carry a folded blue corner flag."
+    ],
+    "rules": [
+      {
+        "name": "The One Ink Rule",
+        "body": "Catalog Blue is the only hue that marks anything. Red exists solely for destructive actions; no other accent, gradient or category color is introduced.",
+        "section": "colors"
+      },
+      {
+        "name": "The Card Stock Rule",
+        "body": "White is the material of cards and controls resting on lavender. It is never a page or section background.",
+        "section": "colors"
+      },
+      {
+        "name": "The Call Label Rule",
+        "body": "Mono is reserved for catalog data: subject codes, filing dates, reading time, counts, ranks and the run counter. It never sets a heading, a summary or a button.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tinted Shadow Rule",
+        "body": "Shadows carry the accent's hue, never neutral grey or hard offsets. Only cards and overlays cast them; controls are stroked, not lifted.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Two-Shape Rule",
+        "body": "12px for things you read, pill for things you press.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "**Do** set every page on Lavender Ground and let white appear only as cards and controls.",
+      "**Do** put a 1px Catalog Blue rule under every index card title.",
+      "**Do** mark selection with Catalog Blue: the active tab's top edge, selected chips, the current page, the primary button.",
+      "**Do** write catalog metadata as a mono call label: blue subject code, then date, reading time and reads separated by \" / \".",
+      "**Do** keep surfaces at 12px corners and controls as full pills.",
+      "**Do** draw control edges with 1px inset hairlines and keep shadows blue-tinted and ambient.",
+      "**Do** keep article text in a 68ch column at 17-18px with 1.75 leading.",
+      "**Do** step spacing on the 8px module."
+    ],
+    "donts": [
+      "**Don't** introduce a second accent color, category colors or gradients; red is for destructive actions only.",
+      "**Don't** set headings, summaries or buttons in Geist Mono.",
+      "**Don't** use neutral grey or hard offset shadows; don't add shadows to controls.",
+      "**Don't** mix radii outside 6 / 8 / 12px and pill.",
+      "**Don't** open a page with a hero banner over an equal card grid; subject browsing and results live inside the guide-tab drawer.",
+      "**Don't** add choreographed motion beyond the file-in settle and state transitions."
+    ]
+  }
+}

@@ -1,14 +1,12 @@
 import { useAuth } from "@clerk/react";
 import axios from "axios";
+import { api, authHeaders, errorMessage } from "../lib/api";
 import { useRef } from "react";
 import { toast } from "react-toastify";
 
 // Fetch a short-lived signature from our API, then upload straight to Cloudinary.
 const uploadToCloudinary = async (file, type, token, onProgress) => {
-  const { data: auth } = await axios.get(
-    `${import.meta.env.VITE_API_URL}/posts/upload-auth`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const { data: auth } = await api.get("/posts/upload-auth", authHeaders(token));
 
   const formData = new FormData();
   formData.append("file", file);
@@ -32,7 +30,10 @@ const uploadToCloudinary = async (file, type, token, onProgress) => {
   return res.data;
 };
 
-const Upload = ({ children, type, setProgress, setData }) => {
+// Cloudinary free-plan limits; checked here so oversized files never use an upload slot.
+const MAX_BYTES = { image: 10 * 1024 * 1024, video: 100 * 1024 * 1024 };
+
+const Upload = ({ children, type, setProgress, setData, className = "inline-flex" }) => {
   const ref = useRef(null);
   const { getToken } = useAuth();
 
@@ -41,17 +42,19 @@ const Upload = ({ children, type, setProgress, setData }) => {
     // Reset so picking the same file again still fires onChange.
     e.target.value = "";
     if (!file) return;
+    if (file.size > MAX_BYTES[type]) {
+      toast.error(`That ${type} is too large. The limit is ${MAX_BYTES[type] / 1024 / 1024} MB.`);
+      return;
+    }
 
     try {
       const token = await getToken();
       const data = await uploadToCloudinary(file, type, token, setProgress);
       setData(data);
     } catch (error) {
-      console.log(error);
       setProgress(0);
-      toast.error(
-        error.response?.data?.error?.message || `${type} upload failed!`
-      );
+      // Cloudinary errors come back as { error: { message } }.
+      toast.error(error.response?.data?.error?.message || errorMessage(error));
     }
   };
 
@@ -64,9 +67,13 @@ const Upload = ({ children, type, setProgress, setData }) => {
         accept={`${type}/*`}
         onChange={handleChange}
       />
-      <div className="cursor-pointer" onClick={() => ref.current.click()}>
+      <button
+        type="button"
+        className={`cursor-pointer rounded-xl text-left ${className}`}
+        onClick={() => ref.current.click()}
+      >
         {children}
-      </div>
+      </button>
     </>
   );
 };

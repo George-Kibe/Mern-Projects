@@ -1,12 +1,23 @@
 import Comment from "../models/comment.model.js";
 import getUser, { getRole } from "../lib/getUser.js";
 
+// GET /comments/:postId?page&limit, newest first.
 export const getPostComments = async (req, res) => {
-  const comments = await Comment.find({ post: req.params.postId })
-    .populate("user", "username img clerkUserId")
-    .sort({ createdAt: -1 });
+  const limit = Math.min(Number.parseInt(req.query.limit, 10) || 10, 50);
+  const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
+  const filter = { post: req.params.postId };
 
-  res.json(comments);
+  const [comments, total] = await Promise.all([
+    Comment.find(filter)
+      .populate("user", "username img clerkUserId")
+      .sort({ createdAt: -1, _id: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Comment.countDocuments(filter),
+  ]);
+
+  const totalPages = Math.ceil(total / limit);
+  res.json({ comments, page, limit, total, totalPages, hasMore: page < totalPages });
 };
 
 export const addComment = async (req, res) => {
@@ -21,6 +32,10 @@ export const addComment = async (req, res) => {
 
   if (!description) {
     return res.status(400).json("Comment cannot be empty!");
+  }
+
+  if (description.length > 1000) {
+    return res.status(400).json("Comments can be at most 1000 characters.");
   }
 
   const user = await getUser(clerkUserId);

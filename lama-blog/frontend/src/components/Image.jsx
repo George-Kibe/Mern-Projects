@@ -1,6 +1,7 @@
 import { cloudinaryUrl, isCloudinaryUrl } from "../lib/cloudinary";
 
-const Image = ({ src, className, w, h, alt = "" }) => {
+// `priority` is for above-the-fold images (e.g. a post cover): load eagerly, fetch first.
+const Image = ({ src, className, w, h, alt = "", priority = false }) => {
   if (!src) return null;
 
   // Local assets live in /public; other absolute URLs (e.g. Clerk avatars) pass through.
@@ -14,7 +15,8 @@ const Image = ({ src, className, w, h, alt = "" }) => {
       <img
         src={url}
         className={className}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : undefined}
         alt={alt}
         width={w}
         height={h}
@@ -39,7 +41,8 @@ const Image = ({ src, className, w, h, alt = "" }) => {
       src={cloudinaryUrl(src, dimensions)}
       srcSet={`${cloudinaryUrl(src, dimensions)} 1x, ${cloudinaryUrl(src, retina)} 2x`}
       className={className}
-      loading="lazy"
+      loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : undefined}
       alt={alt}
       width={width}
       height={height}

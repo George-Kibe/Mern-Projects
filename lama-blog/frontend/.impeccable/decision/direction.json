@@ -1,0 +1,334 @@
+{
+  "title": "Choose the visual world for Realhive Blog",
+  "question": "Your colors stay fixed (lavender ground, blue-800 accent, white surfaces). The roll assigned The Card Catalog. Keep it, take the pick, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "The Card Catalog",
+      "kicker": "THE ROLL",
+      "lineage": "library card catalogs: subject drawers, guide cards, filed index cards",
+      "thesis": "Browsing the blog is browsing a catalog: subjects are drawers, posts are filed cards, filters are filing rules.",
+      "palette": [
+        "#E6E6FF",
+        "#FFFFFF",
+        "#1E40AF",
+        "#14163A",
+        "#C7C8F0"
+      ],
+      "materials": [
+        "white index card stock with a blue ruled header line",
+        "guide-card tabs standing above the row",
+        "typewritten call labels"
+      ],
+      "viewport": "Masthead, then a row of subject guide tabs (categories) with the active drawer raised; the latest posts filed as index cards with a ruled header, call label (category + date), title, excerpt.",
+      "risk": "Turns twee if cards get fake typewriter fonts or paper textures; the card is a structure, not a costume.",
+      "raised": [
+        {
+          "from": "studio-dumbar-identity",
+          "raise": "Every card, tab and gap locks to one 8px module; nothing is spaced by eye."
+        },
+        {
+          "from": "operate-a-cutting-bench-select-rail",
+          "raise": "State is a mark, not a hue: saved posts carry a folded corner flag, the active drawer tab is raised."
+        },
+        {
+          "from": "operate-c-cracktro-scroller-queue",
+          "raise": "Rank comes from type scale and position; no boxes inside boxes, the reading column is never enclosed."
+        }
+      ],
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          {
+            "label": "masthead",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 1
+          },
+          {
+            "label": "intro + write",
+            "x": 0,
+            "y": 1,
+            "w": 12,
+            "h": 2
+          },
+          {
+            "label": "subject tabs",
+            "x": 0,
+            "y": 3,
+            "w": 12,
+            "h": 1,
+            "accent": true
+          },
+          {
+            "label": "featured card",
+            "x": 0,
+            "y": 4,
+            "w": 7,
+            "h": 3
+          },
+          {
+            "label": "filed cards",
+            "x": 7,
+            "y": 4,
+            "w": 5,
+            "h": 3
+          },
+          {
+            "label": "card grid + pages",
+            "x": 0,
+            "y": 7,
+            "w": 12,
+            "h": 3
+          }
+        ]
+      }
+    },
+    {
+      "id": "model-pick",
+      "label": "The Whiteprint",
+      "kicker": "IMPECCABLE\u2019S PICK",
+      "lineage": "diazo whiteprints and engineering title blocks",
+      "thesis": "Your lavender and blue already are a blueprint: every post is a drawing sheet with a title block.",
+      "palette": [
+        "#E6E6FF",
+        "#1E40AF",
+        "#FFFFFF",
+        "#14163A"
+      ],
+      "materials": [
+        "faint construction grid on the ground",
+        "title-block boxes with ruled fields",
+        "hairline dimension rules"
+      ],
+      "viewport": "Ground carries a faint drafting grid; posts are sheets with a title block (title, author, category, date as fields).",
+      "risk": "Engineering-blog blueprint is the familiar move for dev content; heavy grids compete with photography.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          {
+            "label": "masthead",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 1
+          },
+          {
+            "label": "sheet: featured",
+            "x": 0,
+            "y": 1,
+            "w": 8,
+            "h": 5,
+            "accent": true
+          },
+          {
+            "label": "title blocks",
+            "x": 8,
+            "y": 1,
+            "w": 4,
+            "h": 5
+          },
+          {
+            "label": "sheet grid",
+            "x": 0,
+            "y": 6,
+            "w": 12,
+            "h": 4
+          }
+        ]
+      }
+    },
+    {
+      "id": "challenger-dumbar",
+      "label": "Modular Identity Bars",
+      "verdict": "declined",
+      "lineage": "Studio Dumbar identity systems",
+      "thesis": "Photos snapped under saturated bars on one module.",
+      "palette": [
+        "#00A0E0",
+        "#E4007C",
+        "#FFE600",
+        "#2BB24C"
+      ],
+      "materials": [
+        "flat vector bars",
+        "photography"
+      ],
+      "viewport": "Photo panels overrun by colored bars.",
+      "case": "Its four saturated primaries break your pinned palette; readers lose the article to the bars.",
+      "risk": "Palette conflict with a binding brand commitment.",
+      "kept": "One module that every element snaps to."
+    },
+    {
+      "id": "challenger-cutting-bench",
+      "label": "Cutting Bench Rail",
+      "verdict": "declined",
+      "lineage": "film editing benches",
+      "thesis": "Sections strung as frames on a perforated rail.",
+      "palette": [
+        "#FF6A13",
+        "#0B0B0B",
+        "#FFFFFF"
+      ],
+      "materials": [
+        "film grain",
+        "punched frames"
+      ],
+      "viewport": "A rail crossing every sheet.",
+      "case": "A tool costume for a reading surface; the rail would replace navigation readers already know.",
+      "risk": "Orange-on-black contradicts the brand.",
+      "kept": "State as a mark: saved flag, raised active tab."
+    },
+    {
+      "id": "challenger-cracktro",
+      "label": "Cracktro Queue",
+      "verdict": "declined",
+      "lineage": "demoscene title screens",
+      "thesis": "Rank as depth on a black void.",
+      "palette": [
+        "#000000",
+        "#F2EAD3",
+        "#FFB000"
+      ],
+      "materials": [
+        "bitmap type",
+        "drifting dust"
+      ],
+      "viewport": "Bitmap lines over a void.",
+      "case": "Bitmap running text fails long-form reading.",
+      "risk": "Dark void conflicts with the lavender ground.",
+      "kept": "Rank by type, never by nested boxes."
+    },
+    {
+      "id": "challenger-broadside",
+      "label": "Calavera Broadside",
+      "verdict": "declined",
+      "lineage": "Posada penny-press sheets",
+      "thesis": "Image band over two hard columns.",
+      "palette": [
+        "#EDE6D6",
+        "#111111",
+        "#D7263D"
+      ],
+      "materials": [
+        "newsprint",
+        "relief engraving"
+      ],
+      "viewport": "Shouting headline, engraving band, two columns.",
+      "case": "Folk satire tone misreads a consultancy's engineering writing.",
+      "risk": "Tone mismatch.",
+      "kept": "A firm image band above the text on post pages."
+    },
+    {
+      "id": "challenger-dive",
+      "label": "Mesophotic Dive",
+      "verdict": "declined",
+      "lineage": "technical dive profiles",
+      "thesis": "One vertical depth axis rules the page.",
+      "palette": [
+        "#06142E",
+        "#00C2D1",
+        "#F4F7F9"
+      ],
+      "materials": [
+        "marine snow",
+        "dive-computer digits"
+      ],
+      "viewport": "A descent through depth stages.",
+      "case": "No product truth maps to depth; readers would scroll a metaphor.",
+      "risk": "Pure decoration.",
+      "kept": "One consistent vertical rhythm."
+    },
+    {
+      "id": "challenger-tensegrity",
+      "label": "Tensegrity Column",
+      "verdict": "declined",
+      "lineage": "kinetic sculpture",
+      "thesis": "Layout obeys a strut network.",
+      "palette": [
+        "#1A1A1A",
+        "#D9D6D0",
+        "#C8102E"
+      ],
+      "materials": [
+        "carbon rods",
+        "red cord"
+      ],
+      "viewport": "Annotations on leader lines.",
+      "case": "Breaks reading order outright.",
+      "risk": "Unreadable as a blog.",
+      "kept": "Precise alignment of every label to its anchor."
+    }
+  ],
+  "reroll": {
+    "registers": [
+      "safer",
+      "bolder"
+    ]
+  },
+  "buildPath": {
+    "value": "code",
+    "toggle": false
+  },
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "A clean modern tech blog: hero, featured grid, post cards, sidebar filters.",
+    "palette": [
+      "#E6E6FF",
+      "#FFFFFF",
+      "#1E40AF",
+      "#111827"
+    ],
+    "materials": [
+      "clean card grid",
+      "cover photography"
+    ],
+    "viewport": "The arrangement a reader expects, at full craft.",
+    "risk": "Looks like every other dev blog by design.",
+    "wireframe": {
+      "cols": 12,
+      "rows": 10,
+      "regions": [
+        {
+          "label": "nav",
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 1
+        },
+        {
+          "label": "hero",
+          "x": 0,
+          "y": 1,
+          "w": 12,
+          "h": 3
+        },
+        {
+          "label": "card grid",
+          "x": 0,
+          "y": 4,
+          "w": 9,
+          "h": 6
+        },
+        {
+          "label": "sidebar",
+          "x": 9,
+          "y": 4,
+          "w": 3,
+          "h": 6
+        }
+      ]
+    }
+  },
+  "steer": true,
+  "seedKey": "b4e577bb",
+  "seedCommand": "impeccable concept-seed --scope direction --mode read (ASSIGNED INDEX 4)",
+  "answer": {
+    "optionId": "assigned",
+    "via": "structured question tool after the decision page closed unanswered (exit 4)"
+  }
+}

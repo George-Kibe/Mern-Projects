@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 import Comment from "../models/comment.model.js";
@@ -16,74 +17,164 @@ const toSlug = (title) =>
     .replace(/[\s-]+/g, "-")
     .replace(/^-|-$/g, "");
 
+const CATEGORIES = [
+  "general",
+  "web-design",
+  "development",
+  "databases",
+  "ai",
+  "seo",
+  "marketing",
+];
+const DAY = 24 * 60 * 60 * 1000;
+const TIME_RANGES = { week: 7 * DAY, month: 30 * DAY, year: 365 * DAY };
+// Every sort ends on _id so pages never overlap or skip posts with equal keys.
+const SORTS = {
+  newest: { createdAt: -1, _id: -1 },
+  oldest: { createdAt: 1, _id: 1 },
+  popular: { visit: -1, createdAt: -1, _id: -1 },
+  trending: { visit: -1, createdAt: -1, _id: -1 },
+  "title-asc": { title: 1, _id: 1 },
+  "title-desc": { title: -1, _id: -1 },
+};
+const MAX_LIMIT = 48;
+
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const toPositiveInt = (value, fallback) => {
+  const n = Number.parseInt(value, 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+};
+
+const emptyPage = (page, limit) => ({
+  posts: [],
+  page,
+  limit,
+  total: 0,
+  totalPages: 0,
+  hasMore: false,
+});
+
+// GET /posts
+// ?page&limit&sort=newest|oldest|popular|trending|title-asc|title-desc
+// &cat=ai,databases&author=username&search=text&time=week|month|year
+// &featured=true&saved=true&exclude=<slug>
 export const getPosts = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = Math.min(parseInt(req.query.limit) || 2, 50);
+  const limit = Math.min(toPositiveInt(req.query.limit, 12), MAX_LIMIT);
+  const page = toPositiveInt(req.query.page, 1);
+  const sortKey = SORTS[req.query.sort] ? req.query.sort : "newest";
 
   const query = {};
 
-  const category = req.query.cat || req.query.category;
-  const author = req.query.author;
-  const searchQuery = req.query.search;
-  const sortQuery = req.query.sort;
-  const featured = req.query.featured;
-
-  if (category) {
-    query.category = category;
+  const categories = String(req.query.cat || req.query.category || "")
+    .split(",")
+    .map((c) => c.trim())
+    .filter((c) => CATEGORIES.includes(c));
+  if (categories.length) {
+    query.category = { $in: categories };
   }
 
-  if (searchQuery) {
-    query.title = { $regex: searchQuery, $options: "i" };
+  const search = String(req.query.search || "").trim().slice(0, 100);
+  if (search) {
+    const pattern = new RegExp(escapeRegex(search), "i");
+    query.$or = [{ title: pattern }, { description: pattern }];
   }
 
-  if (author) {
-    const user = await User.findOne({ username: author }).select("_id");
-
-    if (!user) {
-      return res.status(200).json({ posts: [], hasMore: false });
-    }
-
+  if (req.query.author) {
+    const user = await User.findOne({ username: String(req.query.author) }).select("_id");
+    if (!user) return res.status(200).json(emptyPage(page, limit));
     query.user = user._id;
   }
 
-  let sortObj = { createdAt: -1 };
-
-  if (sortQuery) {
-    switch (sortQuery) {
-      case "newest":
-        sortObj = { createdAt: -1 };
-        break;
-      case "oldest":
-        sortObj = { createdAt: 1 };
-        break;
-      case "popular":
-        sortObj = { visit: -1 };
-        break;
-      case "trending":
-        sortObj = { visit: -1 };
-        query.createdAt = {
-          $gte: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000),
-        };
-        break;
-      default:
-        break;
-    }
+  // Trending = most read among posts from the past week.
+  const range = sortKey === "trending" ? TIME_RANGES.week : TIME_RANGES[req.query.time];
+  if (range) {
+    query.createdAt = { $gte: new Date(Date.now() - range) };
   }
 
-  if (featured) {
+  if (req.query.featured === "true") {
     query.isFeatured = true;
   }
 
-  const posts = await Post.find(query)
-    .populate("user", "username")
-    .sort(sortObj)
-    .limit(limit)
-    .skip((page - 1) * limit);
+  if (req.query.exclude) {
+    query.slug = { $ne: String(req.query.exclude) };
+  }
 
-  const totalPosts = await Post.countDocuments(query);
-  const hasMore = page * limit < totalPosts;
+  if (req.query.saved === "true") {
+    const clerkUserId = req.auth().userId;
+    if (!clerkUserId) {
+      return res.status(401).json("Sign in to see your saved posts.");
+    }
+    const user = await getUser(clerkUserId);
+    const savedIds = user.savedPosts
+      .filter((id) => mongoose.isValidObjectId(id))
+      .map((id) => new mongoose.Types.ObjectId(id));
+    query._id = { $in: savedIds };
+  }
 
-  res.status(200).json({ posts, hasMore });
+  const [result] = await Post.aggregate([
+    { $match: query },
+    {
+      $facet: {
+        total: [{ $count: "count" }],
+        posts: [
+          { $sort: SORTS[sortKey] },
+          { $skip: (page - 1) * limit },
+          { $limit: limit },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "user",
+              pipeline: [{ $project: { username: 1, img: 1 } }],
+            },
+          },
+          { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
+          {
+            // ~1300 characters of HTML per minute of reading; bodies stay out of lists.
+            $addFields: {
+              readingMinutes: {
+                $max: [1, { $ceil: { $divide: [{ $strLenCP: "$content" }, 1300] } }],
+              },
+            },
+          },
+          { $project: { content: 0 } },
+        ],
+      },
+    },
+  ]);
+
+  const total = result.total[0]?.count ?? 0;
+  const totalPages = Math.ceil(total / limit);
+
+  res.status(200).json({
+    posts: result.posts,
+    page,
+    limit,
+    total,
+    totalPages,
+    hasMore: page < totalPages,
+  });
+};
+
+// GET /posts/meta: post counts per category and the list of authors, for filters.
+export const getPostsMeta = async (req, res) => {
+  const [categoryCounts, authors, total] = await Promise.all([
+    Post.aggregate([{ $group: { _id: "$category", count: { $sum: 1 } } }]),
+    Post.aggregate([
+      { $group: { _id: "$user", count: { $sum: 1 } } },
+      { $lookup: { from: "users", localField: "_id", foreignField: "_id", as: "user" } },
+      { $unwind: "$user" },
+      { $project: { _id: 0, username: "$user.username", count: 1 } },
+      { $sort: { username: 1 } },
+    ]),
+    Post.countDocuments(),
+  ]);
+
+  const categories = Object.fromEntries(categoryCounts.map((c) => [c._id, c.count]));
+  res.set("Cache-Control", "public, max-age=30");
+  res.status(200).json({ total, categories, authors });
 };
 
 export const getPost = async (req, res) => {

@@ -6,16 +6,23 @@ import commentRouter from "./routes/comment.route.js";
 import webhookRouter from "./routes/webhook.route.js";
 import cors from "cors";
 
-import { clerkMiddleware, requireAuth } from "@clerk/express";
+import { clerkMiddleware } from "@clerk/express";
+import { apiLimiter, writeLimiter } from "./middlewares/rateLimit.js";
 
 const app = express();
-// app.use(cors(process.env.CLIENT_URL));
+
+// Behind a proxy/load balancer (Render, Railway, Nginx...) set TRUST_PROXY=1
+// so rate limiting sees the real client IP.
+if (process.env.TRUST_PROXY) {
+  app.set("trust proxy", Number(process.env.TRUST_PROXY) || process.env.TRUST_PROXY);
+}
 
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
+    exposedHeaders: ["Retry-After", "RateLimit", "RateLimit-Policy"],
   })
 );
 
@@ -55,6 +62,8 @@ app.get('/', (req, res) => {
 // app.get("/protect", requireAuth(), (req, res) => {
 //   res.status(200).json("content")
 // });
+
+app.use(["/users", "/posts", "/comments"], apiLimiter, writeLimiter);
 
 app.use("/users", userRouter);
 app.use("/posts", postRouter);
