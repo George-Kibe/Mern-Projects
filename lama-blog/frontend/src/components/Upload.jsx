@@ -19,7 +19,9 @@ const authenticator = async () => {
     const { signature, expire, token } = data;
     return { signature, expire, token };
   } catch (error) {
-    throw new Error(`Authentication request failed: ${error.message}`);
+    throw new Error(`Authentication request failed: ${error.message}`, {
+      cause: error,
+    });
   }
 };
 

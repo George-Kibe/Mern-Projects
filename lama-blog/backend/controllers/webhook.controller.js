@@ -18,7 +18,9 @@ export const clerkWebHook = async (req, res) => {
   let evt;
 
   try {
-    evt = wh.verify(payload, headers);
+    // svix v2 verify() only validates the signature; parse the body ourselves
+    wh.verify(payload, headers);
+    evt = JSON.parse(payload.toString());
   } catch (error) {
     console.log("Webhook verification failed!", error.message);
     return res.status(400).json({

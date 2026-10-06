@@ -83,10 +83,10 @@ export const getPost = async (req, res) => {
 };
 
 export const createPost = async (req, res) => {
-  const clerkUserId = req.auth.userId;
+  const clerkUserId = req.auth().userId;
 
   // console.log(req.headers);
-  console.log(req.auth);
+  console.log(req.auth());
   if (!clerkUserId) {
     return res.status(401).json("Not authenticated!");
   }
@@ -117,13 +117,13 @@ export const createPost = async (req, res) => {
 };
 
 export const deletePost = async (req, res) => {
-  const clerkUserId = req.auth.userId;
+  const clerkUserId = req.auth().userId;
 
   if (!clerkUserId) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const role = req.auth.sessionClaims?.metadata?.role || "user";
+  const role = req.auth().sessionClaims?.metadata?.role || "user";
 
   if (role === "admin") {
     await Post.findByIdAndDelete(req.params.id);
@@ -145,14 +145,14 @@ export const deletePost = async (req, res) => {
 };
 
 export const featurePost = async (req, res) => {
-  const clerkUserId = req.auth.userId;
+  const clerkUserId = req.auth().userId;
   const postId = req.body.postId;
 
   if (!clerkUserId) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const role = req.auth.sessionClaims?.metadata?.role || "user";
+  const role = req.auth().sessionClaims?.metadata?.role || "user";
 
   if (role !== "admin") {
     return res.status(403).json("You cannot feature posts!");

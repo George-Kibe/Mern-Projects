@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import Image from "./Image";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";

@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from '../components/Image'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router'
 import Search from '../components/Search'
 import Comments from '../components/Comments'
 import axios from 'axios'

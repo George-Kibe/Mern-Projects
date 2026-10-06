@@ -12,7 +12,7 @@ export const getPostComments = async (req, res) => {
 export const addComment = async (req, res) => {
   console.log("Adding comment...");
   console.log("Request Body: ", req.body);
-  const clerkUserId = req.auth.userId;
+  const clerkUserId = req.auth().userId;
   const postId = req.params.postId;
 
   if (!clerkUserId) {
@@ -37,14 +37,14 @@ export const addComment = async (req, res) => {
 };
 
 export const deleteComment = async (req, res) => {
-  const clerkUserId = req.auth.userId;
+  const clerkUserId = req.auth().userId;
   const id = req.params.id;
 
   if (!clerkUserId) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const role = req.auth.sessionClaims?.metadata?.role || "user";
+  const role = req.auth().sessionClaims?.metadata?.role || "user";
 
   if (role === "admin") {
     await Comment.findByIdAndDelete(req.params.id);

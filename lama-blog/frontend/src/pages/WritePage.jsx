@@ -1,33 +1,26 @@
 import React, { useState } from 'react'
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import ReactQuill from 'react-quill-new';
 import { toast } from "react-toastify";
 import 'react-quill-new/dist/quill.snow.css';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import Upload from '../components/Upload';
-import { useEffect } from 'react';
 
 const WritePage = () => {
   const { isLoaded, isSignedIn } = useUser();
   const [value, setValue] = useState("");
   const [cover, setCover] = useState("");
-  const [img, setImg] = useState("");
-  const [video, setVideo] = useState("");
   const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
-    img && setValue((prev) => prev + `<p><image src="${img.url}"/></p>`);
-  }, [img]);
-  console.log("Image: ", img);
+  const addImage = (img) =>
+    setValue((prev) => prev + `<p><image src="${img.url}"/></p>`);
 
-  useEffect(() => {
-    video &&
-      setValue(
-        (prev) => prev + `<p><iframe class="ql-video" src="${video.url}"/></p>`
-      );
-  }, [video]);
+  const addVideo = (video) =>
+    setValue(
+      (prev) => prev + `<p><iframe class="ql-video" src="${video.url}"/></p>`
+    );
 
 
   const navigate = useNavigate();
@@ -138,10 +131,10 @@ const WritePage = () => {
         />
         <div className="flex flex-1 ">
           <div className="flex flex-col gap-2 mr-2">
-            <Upload type="image" setProgress={setProgress} setData={setImg}>
+            <Upload type="image" setProgress={setProgress} setData={addImage}>
               🌆
             </Upload>
-            <Upload type="video" setProgress={setProgress} setData={setVideo}>
+            <Upload type="video" setProgress={setProgress} setData={addVideo}>
               ▶️
             </Upload>
           </div>
