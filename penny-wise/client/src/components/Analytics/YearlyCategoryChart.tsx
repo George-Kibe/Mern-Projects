@@ -185,7 +185,7 @@ export default function YearlyCategoryChart({
             return (
               <Bar
                 key={category}
-                dataKey={category}
+                dataKey={category as string}
                 stackId="a"
                 fill={color}
                 onMouseEnter={() => setActiveCategory(category)}

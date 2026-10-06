@@ -18,7 +18,7 @@ const connectDB = async () => {
     console.error("Possible fixes:");
     console.error("1. Make sure MongoDB is running");
     console.error("2. Check if port 27017 is available");
-    console.error("3. Verify MONGODB_URI in .env file");
+    console.error("3. Verify MONGODBURI in .env file");
 
     process.exit(1);
   }

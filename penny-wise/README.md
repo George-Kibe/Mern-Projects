@@ -62,7 +62,7 @@ A secure, full-stack personal finance application built with MongoDB, Express, R
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v18 or higher)
+- **Node.js** (v20.19+ or v22.12+)
 - **MongoDB** (v6 or higher) — [Installation Guide](https://www.youtube.com/watch?v=gB6WLkSrtJk)
 - **npm** or **yarn**
 
@@ -230,13 +230,18 @@ cd server
 npm install
 ```
 
-Create a `.env` file in the `server/` directory:
+Copy the example file and fill in the values (`JWT_SECRET` is required):
+
+```bash
+cp .env.example .env
+```
 
 ```env
 PORT=8000
+NODE_ENV=development
+CLIENT_URL=http://localhost:3000
 MONGODBURI=mongodb://localhost:27017/pennywise
 JWT_SECRET=your-secure-jwt-secret-key
-NODE_ENV=development
 ```
 
 Start MongoDB, then run the server:
@@ -256,7 +261,11 @@ cd client
 npm install
 ```
 
-Create a `.env` file in the `client/` directory:
+Copy the example file:
+
+```bash
+cp .env.example .env
+```
 
 ```env
 VITE_API_BASE_URL=http://localhost:8000/api

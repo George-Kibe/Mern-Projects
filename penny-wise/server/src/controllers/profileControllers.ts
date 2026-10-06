@@ -125,7 +125,7 @@ export const uploadAvatar = asyncHandler(
     }
 
     if (user.avatar) {
-      const oldAvatarPath = path.join("upload", "avatars", user.avatar);
+      const oldAvatarPath = path.join("uploads", "avatars", user.avatar);
 
       if (fs.existsSync(oldAvatarPath)) {
         fs.unlinkSync(oldAvatarPath);

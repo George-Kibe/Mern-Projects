@@ -33,7 +33,7 @@ export default function CategoryTable({ data }: CategoryTableProps) {
   }
 
   const sortedData = [...data].sort((a, b) => {
-    let comparison = 0;
+    let comparison: number;
 
     if (sortColumn === "category") {
       const aLabel = getCategoryConfig(a.category).label;

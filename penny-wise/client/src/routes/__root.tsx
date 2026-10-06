@@ -1,30 +1,6 @@
-import Navigation from "@/components/Common/Navigation";
-import {
-  createRootRoute,
-  Outlet,
-  useRouterState,
-} from "@tanstack/react-router";
-import { useEffect } from "react";
+import RootLayout from "@/components/Common/RootLayout";
+import { createRootRoute } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
   component: RootLayout,
 });
-
-function RootLayout() {
-  const { matches } = useRouterState();
-
-  const activeMatch = matches[matches.length - 1];
-
-  const { title = "PennyWise" } = activeMatch.context as { title: string };
-
-  useEffect(() => {
-    document.title = title;
-  }, [title]);
-
-  return (
-    <>
-      <Navigation />
-      <Outlet />
-    </>
-  );
-}

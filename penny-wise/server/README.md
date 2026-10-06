@@ -6,16 +6,16 @@ A REST API built with Express 5, TypeScript, MongoDB, and JWT authentication. Th
 
 | Technology   | Version | Purpose                         |
 | ------------ | ------- | ------------------------------- |
-| Node.js      | 18+     | Runtime environment             |
+| Node.js      | 20.19+  | Runtime environment             |
 | Express      | 5       | Web framework                   |
-| TypeScript   | 5.9     | Type safety                     |
+| TypeScript   | 7       | Type safety                     |
 | MongoDB      | 6+      | NoSQL database                  |
 | Mongoose     | 9       | MongoDB object modeling         |
 | jsonwebtoken | 9       | JWT generation and verification |
 | bcryptjs     | 3       | Password hashing                |
 | Multer       | 2       | Avatar file upload handling     |
 | CORS         | 2.8     | Cross-origin resource sharing   |
-| dotenv       | 17      | Environment variable management |
+| dotenv       | 18      | Environment variable management |
 | tsx          | 4       | TypeScript execution            |
 | nodemon      | 3       | Hot reloading in development    |
 
@@ -23,7 +23,7 @@ A REST API built with Express 5, TypeScript, MongoDB, and JWT authentication. Th
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v18 or higher)
+- **Node.js** (v20.19+ or v22.12+)
 - **MongoDB** (v6 or higher) — [Installation Guide](https://www.youtube.com/watch?v=gB6WLkSrtJk)
 - **npm** or **yarn**
 
@@ -43,13 +43,18 @@ npm install
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the `server/` directory:
+Copy the example file and fill in the values (`JWT_SECRET` is required):
+
+```bash
+cp .env.example .env
+```
 
 ```env
 PORT=8000
+NODE_ENV=development
+CLIENT_URL=http://localhost:3000
 MONGODBURI=mongodb://localhost:27017/pennywise
 JWT_SECRET=your-secure-jwt-secret-key
-NODE_ENV=development
 ```
 
 ### 4. Start MongoDB

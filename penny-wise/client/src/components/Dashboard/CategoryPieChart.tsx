@@ -168,7 +168,9 @@ export default function CategoryPieChart({
                 ? (entry) => `${(entry.percent! * 100).toFixed(1)}%`
                 : false
             }
-            onClick={handleSliceClick}
+            onClick={(sector) =>
+              handleSliceClick(sector.payload as CategoryTotal)
+            }
             className="cursor-pointer"
           >
             {data.map((entry, index) => {

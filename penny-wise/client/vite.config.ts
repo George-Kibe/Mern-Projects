@@ -16,8 +16,14 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      "@": path.resolve(import.meta.dirname, "src"),
     },
+  },
+
+  // recharts is only imported from lazily split route chunks, which Vite's
+  // startup scan can't see; pre-bundle it to avoid "Outdated Optimize Dep" 504s
+  optimizeDeps: {
+    include: ["recharts"],
   },
 
   server: {

@@ -6,21 +6,21 @@ A React + TypeScript single-page application built with Vite. The client handles
 
 | Technology      | Version | Purpose                       |
 | --------------- | ------- | ----------------------------- |
-| React           | 19      | UI library                    |
-| TypeScript      | 5.9     | Type safety                   |
-| Vite            | 7       | Build tool and dev server     |
+| React           | 19.3    | UI library                    |
+| TypeScript      | 6.0     | Type safety                   |
+| Vite            | 8       | Build tool and dev server     |
 | TanStack Router | 1.149   | File-based routing            |
 | Zustand         | 5       | Global state management       |
 | Axios           | 1.13    | HTTP client                   |
-| Recharts        | 3.6     | Charts and data visualization |
+| Recharts        | 3.10    | Charts and data visualization |
 | Tailwind CSS    | 4       | Utility-first styling         |
-| Lucide React    | 0.562   | Icons                         |
+| Lucide React    | 1.52    | Icons                         |
 
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v18 or higher)
+- **Node.js** (v20.19+ or v22.12+)
 - **npm** or **yarn**
 - The **PennyWise backend server** running at `http://localhost:8000`
 
@@ -40,7 +40,11 @@ npm install
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the `client/` directory:
+Copy the example file:
+
+```bash
+cp .env.example .env
+```
 
 ```env
 VITE_API_BASE_URL=http://localhost:8000/api
